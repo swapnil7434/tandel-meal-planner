@@ -1434,8 +1434,8 @@ const BUILT_IN = {
 /* ─────────────────────────────────────────
    STATE
 ───────────────────────────────────────── */
-let allData  = {};          // merged built-in + localStorage
-let activeKey = "2026-07"; // currently shown month key
+let allData  = {};
+let activeKey = null;
 let activeDay = null;
 
 const MONTH_NAMES = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -1506,7 +1506,8 @@ function renderDayList() {
 
   const td = todayKey();
 
-  for (let d = 1; d <= month.totalDays; d++) {
+  const totalDays = month.totalDays;
+  for (let d = 1; d <= totalDays; d++) {
     const dayData = month.days[d] || {};
     const isToday  = (activeKey === td.key && d === td.day);
     const isSel    = (d === activeDay);
@@ -1538,11 +1539,12 @@ function renderDayList() {
     setTimeout(() => item.classList.add("visible"), (d - 1) * 18);
   }
 
-  // scroll to today or selected
+  // scroll sidebar to today / selected — wait for stagger animation to start
+  const scrollDelay = Math.min(totalDays * 18 + 60, 700);
   setTimeout(() => {
-    const target = listEl.querySelector(`.day-item.today`) || listEl.querySelector(`.day-item.selected`);
+    const target = listEl.querySelector(".day-item.today") || listEl.querySelector(".day-item.selected");
     if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 80);
+  }, scrollDelay);
 }
 
 /* ─────────────────────────────────────────
@@ -1574,6 +1576,7 @@ function renderContent(slideDir) {
   const pct      = Math.round((activeDay / total) * 100);
   const slideClass = slideDir === "left" ? "slide-left" : "";
 
+  el.scrollTop = 0;
   el.innerHTML = `
     <div class="content-inner ${slideClass}">
 
@@ -1958,21 +1961,42 @@ function toggleSidebar() {
 /* ─────────────────────────────────────────
    INIT  (called after all const declarations)
 ───────────────────────────────────────── */
-function _appInit() {
-  loadData();
-
-  // auto-select current month+day if it exists in data
+function jumpToToday() {
   const td = todayKey();
   if (allData[td.key]) {
+    // today's month exists in data — always go there
     activeKey = td.key;
     activeDay = td.day;
-  } else {
-    // fall back to first available month, day 1
-    const first = Object.keys(allData).sort()[0];
-    if (first) { activeKey = first; activeDay = 1; }
+    return;
   }
+  // today's month not added yet — go to the most recent available month, day 1
+  const sorted = Object.keys(allData).sort();
+  if (!sorted.length) return;
+  const todayNum = parseInt(td.key.replace("-",""));
+  let best = sorted[0];
+  for (const k of sorted) {
+    if (parseInt(k.replace("-","")) <= todayNum) best = k;
+  }
+  activeKey = best;
+  activeDay = allData[best] ? allData[best].totalDays : 1;
+}
 
+function _appInit() {
+  loadData();
+  jumpToToday();
   render();
+
+  // if date changes while app is open (overnight / tab refocus) jump to new day
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    const td = todayKey();
+    if (activeKey === td.key && activeDay === td.day) return; // already on today
+    if (allData[td.key]) {
+      // date changed — silently jump
+      jumpToToday();
+      render();
+    }
+  });
 }
 
 /* ─────────────────────────────────────────
