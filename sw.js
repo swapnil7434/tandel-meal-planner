@@ -1,6 +1,6 @@
 const CACHE_NAME = "gujarati-meal-planner-v1";
 const ASSETS = [
-  "./meal-planner.html",
+  "./index.html",
   "./manifest.json",
   "./icon.svg"
 ];
@@ -41,7 +41,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           return response;
         })
-        .catch(() => caches.match("./meal-planner.html"));
+        .catch(() => caches.match("./index.html"));
     })
   );
 });

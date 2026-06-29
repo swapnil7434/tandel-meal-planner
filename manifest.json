@@ -2,7 +2,7 @@
   "name": "Tandel Meal Planner",
   "short_name": "Tandel",
   "description": "Tandel family monthly Gujarati vegetarian meal planner — breakfast, lunch & dinner for the whole family",
-  "start_url": "./meal-planner.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
