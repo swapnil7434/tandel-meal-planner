@@ -1,8 +1,9 @@
-const CACHE_NAME = "gujarati-meal-planner-v1";
+const CACHE_NAME = "tandel-meal-planner-v2";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
-  "./icon.svg"
+  "./icon.svg",
+  "./apple-touch-icon.png"
 ];
 
 /* Install — cache all core assets */

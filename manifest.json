@@ -1,7 +1,7 @@
 {
   "name": "Tandel Meal Planner",
   "short_name": "Tandel",
-  "description": "Tandel family monthly Gujarati vegetarian meal planner — breakfast, lunch & dinner for the whole family",
+  "description": "Tandel family monthly Gujarati vegetarian meal planner \u2014 breakfast, lunch & dinner for the whole family",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -9,19 +9,29 @@
   "background_color": "#FFF8F0",
   "theme_color": "#FF6B35",
   "lang": "en",
-  "categories": ["food", "lifestyle", "productivity"],
+  "categories": [
+    "food",
+    "lifestyle",
+    "productivity"
+  ],
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "any"
     }
   ],
   "screenshots": [],

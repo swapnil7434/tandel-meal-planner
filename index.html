@@ -10,11 +10,11 @@
 <meta name="theme-color" content="#FF6B35">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Meal Planner">
-<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-title" content="Tandel">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="Gujarati Meal Planner">
-<meta name="description" content="Monthly Gujarati vegetarian meal planner for the whole family">
+<meta name="application-name" content="Tandel Meal Planner">
+<meta name="description" content="Tandel family Gujarati vegetarian meal planner">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1144,12 +1144,12 @@
   }
   .recipe-tap-hint svg { flex-shrink: 0; }
 
-  /* ── PWA INSTALL BANNER ── */
+  /* ── PWA INSTALL BANNER (Android/Chrome) ── */
   .install-banner {
     position: fixed;
     bottom: 80px;
     left: 50%;
-    transform: translateX(-50%) translateY(100px);
+    transform: translateX(-50%) translateY(160px);
     background: var(--sidebar);
     color: #fff;
     padding: 12px 18px;
@@ -1161,7 +1161,7 @@
     border: 1px solid rgba(255,107,53,.4);
     z-index: 300;
     transition: transform .4s cubic-bezier(.34,1.56,.64,1);
-    max-width: 320px;
+    max-width: 340px;
     width: calc(100vw - 40px);
   }
   .install-banner.show { transform: translateX(-50%) translateY(0); }
@@ -1171,25 +1171,75 @@
   .install-banner-text span { font-size: .72rem; color: rgba(255,255,255,.65); }
   .install-btn {
     background: linear-gradient(135deg, #FF6B35, #F7C948);
-    color: #fff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 10px;
-    font-size: .75rem;
-    font-weight: 800;
-    cursor: pointer;
-    white-space: nowrap;
+    color: #fff; border: none;
+    padding: 8px 14px; border-radius: 10px;
+    font-size: .75rem; font-weight: 800;
+    cursor: pointer; white-space: nowrap;
     transition: transform .2s ease;
   }
   .install-btn:hover { transform: scale(1.05); }
   .install-close {
-    background: none;
-    border: none;
-    color: rgba(255,255,255,.5);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0;
-    line-height: 1;
+    background: none; border: none;
+    color: rgba(255,255,255,.5); cursor: pointer;
+    font-size: 1rem; padding: 0; line-height: 1;
+  }
+
+  /* ── iOS INSTALL GUIDE ── */
+  .ios-guide-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(6px);
+    z-index: 400;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0 12px 12px;
+    animation: fadeIn .3s ease both;
+  }
+  .ios-guide-overlay.hidden { display: none; }
+  .ios-guide {
+    background: #fff;
+    border-radius: 22px;
+    padding: 22px 20px 20px;
+    width: 100%; max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    animation: slideUp .4s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes slideUp {
+    from { opacity:0; transform:translateY(40px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .ios-guide-hdr {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 16px;
+  }
+  .ios-guide-hdr h3 { font-size: 1rem; font-weight: 800; color: #111; }
+  .ios-guide-close {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #f0f0f0; border: none; cursor: pointer;
+    font-size: .85rem; display: flex; align-items: center; justify-content: center;
+  }
+  .ios-steps { list-style: none; }
+  .ios-step {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid #f4f4f4;
+  }
+  .ios-step:last-child { border-bottom: none; }
+  .ios-step-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B35, #F7C948);
+    color: #fff; font-size: .72rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .ios-step-text { font-size: .88rem; color: #222; line-height: 1.4; padding-top: 3px; }
+  .ios-step-text strong { color: #FF6B35; }
+  .ios-note {
+    margin-top: 14px;
+    background: #FFF8F0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: .75rem; color: #8B4A00; line-height: 1.5;
+    border: 1px solid rgba(255,107,53,.2);
+    text-align: center;
   }
 </style>
 </head>
@@ -1242,15 +1292,46 @@
 <!-- MOBILE DAY PILL -->
 <div class="mobile-day-pill" id="mobilePill" onclick="toggleSidebar()" style="display:none"></div>
 
-<!-- PWA INSTALL BANNER -->
+<!-- ANDROID/CHROME INSTALL BANNER -->
 <div class="install-banner" id="installBanner">
   <div class="install-banner-icon">&#127858;</div>
   <div class="install-banner-text">
     <strong>Add to Home Screen</strong>
-    <span>Use as a mobile app &mdash; works offline!</span>
+    <span>Install as an app &mdash; works offline!</span>
   </div>
   <button class="install-btn" id="installBtn">Install</button>
   <button class="install-close" onclick="dismissInstall()">&#10005;</button>
+</div>
+
+<!-- IOS INSTALL GUIDE -->
+<div class="ios-guide-overlay hidden" id="iosGuideOverlay" onclick="if(event.target===this)dismissIOSGuide()">
+  <div class="ios-guide">
+    <div class="ios-guide-hdr">
+      <h3>&#127760; Add to Home Screen</h3>
+      <button class="ios-guide-close" onclick="dismissIOSGuide()">&#10005;</button>
+    </div>
+    <ol class="ios-steps">
+      <li class="ios-step">
+        <span class="ios-step-num">1</span>
+        <span class="ios-step-text">Make sure you are in <strong>Safari</strong> browser (not Chrome or any other)</span>
+      </li>
+      <li class="ios-step">
+        <span class="ios-step-num">2</span>
+        <span class="ios-step-text">Tap the <strong>Share button &#9633;&#8679;</strong> at the bottom of Safari</span>
+      </li>
+      <li class="ios-step">
+        <span class="ios-step-num">3</span>
+        <span class="ios-step-text">Scroll down and tap <strong>&#65291; Add to Home Screen</strong></span>
+      </li>
+      <li class="ios-step">
+        <span class="ios-step-num">4</span>
+        <span class="ios-step-text">Tap <strong>Add</strong> in the top right corner</span>
+      </li>
+    </ol>
+    <div class="ios-note">
+      &#127858; The Tandel Meal Planner icon will appear on your home screen. Open it like any other app!
+    </div>
+  </div>
 </div>
 
 <!-- ADD MONTH MODAL -->
@@ -2384,22 +2465,28 @@ _appInit();
 /* ─────────────────────────────────────────
    PWA — SERVICE WORKER + INSTALL PROMPT
 ───────────────────────────────────────── */
-let _deferredPrompt = null;
-
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   });
 }
 
+/* ── detect environment ── */
+const _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const _isInStandaloneMode = window.navigator.standalone === true
+  || window.matchMedia("(display-mode: standalone)").matches;
+const _isInstalled = localStorage.getItem("pwaInstalled") || _isInStandaloneMode;
+
+let _deferredPrompt = null;
+
+/* Android / Chrome: native install prompt */
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   _deferredPrompt = e;
-  // show banner after 3s if not already installed
-  if (!localStorage.getItem("pwaInstalled")) {
+  if (!_isInstalled) {
     setTimeout(() => {
       document.getElementById("installBanner").classList.add("show");
-    }, 3000);
+    }, 3500);
   }
 });
 
@@ -2421,6 +2508,18 @@ window.addEventListener("appinstalled", () => {
 
 function dismissInstall() {
   document.getElementById("installBanner").classList.remove("show");
+}
+
+/* iOS Safari: show manual instructions */
+if (_isIOS && !_isInstalled) {
+  setTimeout(() => {
+    document.getElementById("iosGuideOverlay").classList.remove("hidden");
+  }, 3500);
+}
+
+function dismissIOSGuide() {
+  document.getElementById("iosGuideOverlay").classList.add("hidden");
+  localStorage.setItem("pwaInstalled", "ios-dismissed");
 }
 </script>
 </body>
