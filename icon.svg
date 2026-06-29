@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B35"/>
+      <stop offset="50%" stop-color="#F7C948"/>
+      <stop offset="100%" stop-color="#CC3D00"/>
+    </linearGradient>
+    <linearGradient id="plate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FFF3E8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- Outer glow ring -->
+  <circle cx="256" cy="256" r="195" fill="rgba(255,255,255,0.12)"/>
+
+  <!-- Main thali plate -->
+  <circle cx="256" cy="256" r="175" fill="url(#plate)"/>
+
+  <!-- Plate rim ring -->
+  <circle cx="256" cy="256" r="175" fill="none" stroke="rgba(255,107,53,0.35)" stroke-width="10"/>
+  <circle cx="256" cy="256" r="158" fill="none" stroke="rgba(247,201,72,0.3)" stroke-width="4"/>
+
+  <!-- Small katori bowls around the plate -->
+  <circle cx="256" cy="118" r="36" fill="#FFF3E8" stroke="#FF6B35" stroke-width="5"/>
+  <circle cx="256" cy="118" r="22" fill="rgba(255,107,53,0.15)"/>
+
+  <circle cx="155" cy="178" r="28" fill="#FFF8E8" stroke="#F7C948" stroke-width="4"/>
+  <circle cx="155" cy="178" r="17" fill="rgba(247,201,72,0.2)"/>
+
+  <circle cx="357" cy="178" r="28" fill="#FFF8E8" stroke="#F7C948" stroke-width="4"/>
+  <circle cx="357" cy="178" r="17" fill="rgba(247,201,72,0.2)"/>
+
+  <circle cx="132" cy="295" r="24" fill="#FFF0E8" stroke="#CC3D00" stroke-width="3"/>
+  <circle cx="380" cy="295" r="24" fill="#FFF0E8" stroke="#CC3D00" stroke-width="3"/>
+
+  <!-- Rotla (flatbread) ellipse at bottom of thali -->
+  <ellipse cx="256" cy="350" rx="82" ry="32" fill="#F5DEB3" stroke="#CC8800" stroke-width="4"/>
+  <ellipse cx="256" cy="350" rx="62" ry="22" fill="none" stroke="rgba(204,136,0,0.4)" stroke-width="2" stroke-dasharray="6,4"/>
+
+  <!-- Gujarati ગ letter in centre katori -->
+  <text x="256" y="134" font-family="serif" font-size="36" font-weight="bold"
+        fill="#FF6B35" text-anchor="middle" dominant-baseline="middle">ગ</text>
+
+  <!-- Small decorative dots -->
+  <circle cx="200" cy="420" r="6" fill="rgba(255,107,53,0.4)"/>
+  <circle cx="256" cy="432" r="8" fill="rgba(247,201,72,0.5)"/>
+  <circle cx="312" cy="420" r="6" fill="rgba(255,107,53,0.4)"/>
+</svg>

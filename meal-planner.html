@@ -1,0 +1,2427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tandel Meal Planner</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FF6B35">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Meal Planner">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Gujarati Meal Planner">
+<meta name="description" content="Monthly Gujarati vegetarian meal planner for the whole family">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --saffron: #FF6B35;
+    --gold: #F7C948;
+    --deep: #CC3D00;
+    --cream: #FFF8F0;
+    --sidebar: #16162A;
+    --sidebar2: #1E1E38;
+    --green: #2D9A5A;
+    --purple: #7C4DFF;
+    --pink: #E91E8C;
+    --dark: #111122;
+    --text: #222233;
+    --muted: #888;
+    --border: #EBEBEB;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--cream);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(120deg, #FF6B35 0%, #F7C948 40%, #FF6B35 80%, #CC3D00 100%);
+    background-size: 300% 300%;
+    animation: hdrShift 6s ease infinite;
+    padding: 0 16px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 3px 24px rgba(255,107,53,.45);
+    flex-shrink: 0;
+    z-index: 50;
+  }
+  @keyframes hdrShift {
+    0%,100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+
+  .hdr-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* centered in header */
+  }
+  .hdr-logo {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,.25);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    animation: logoSpin 10s linear infinite;
+  }
+  @keyframes logoSpin {
+    0%   { transform: rotateY(0deg); }
+    50%  { transform: rotateY(180deg); }
+    100% { transform: rotateY(360deg); }
+  }
+  header h1 { color:#fff; font-size:1.15rem; font-weight:800; letter-spacing:-.3px; }
+  header h1 span { opacity:.8; font-weight:400; font-size:.85rem; }
+
+  .hdr-badges { display: none; } /* removed as requested */
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 272px;
+    background: var(--sidebar);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 4px 0 32px rgba(0,0,0,.35);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  /* month tabs */
+  .month-tabs {
+    padding: 12px 10px 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .month-tab {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    color: rgba(255,255,255,.5);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: .69rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .25s ease;
+    letter-spacing: .3px;
+  }
+  .month-tab:hover { background: rgba(255,107,53,.25); color:#fff; border-color:#FF6B35; }
+  .month-tab.active {
+    background: linear-gradient(135deg, #FF6B35, #F7C948);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 12px rgba(255,107,53,.45);
+  }
+
+  /* add month btn */
+  .add-month-btn {
+    margin: 7px 10px;
+    background: transparent;
+    border: 1.5px dashed rgba(247,201,72,.4);
+    color: rgba(247,201,72,.7);
+    padding: 6px;
+    border-radius: 20px;
+    font-size: .69rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .25s ease;
+    width: calc(100% - 20px);
+    letter-spacing: .4px;
+  }
+  .add-month-btn:hover {
+    background: rgba(247,201,72,.12);
+    color: #F7C948;
+    border-color: #F7C948;
+    transform: scale(1.01);
+  }
+
+  /* timeline list */
+  .days-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 0 16px;
+    scroll-behavior: smooth;
+    position: relative;
+  }
+  .days-list::-webkit-scrollbar { width: 3px; }
+  .days-list::-webkit-scrollbar-thumb { background: rgba(255,107,53,.4); border-radius: 2px; }
+
+  /* vertical timeline line */
+  .days-list::before {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(255,107,53,.3) 10%,
+      rgba(247,201,72,.4) 50%,
+      rgba(255,107,53,.3) 90%,
+      transparent 100%
+    );
+  }
+
+  .day-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px 9px 10px;
+    margin: 2px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+    border: 1px solid transparent;
+    opacity: 0;
+    transform: translateX(-24px);
+    position: relative;
+  }
+  .day-item.visible {
+    animation: slideIn .35s forwards;
+  }
+  @keyframes slideIn {
+    to { opacity:1; transform:translateX(0); }
+  }
+
+  .day-item:hover {
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,107,53,.25);
+  }
+  .day-item.selected {
+    background: rgba(255,107,53,.18);
+    border-color: rgba(255,107,53,.45);
+  }
+  .day-item.today {
+    background: rgba(255,107,53,.14);
+    border-color: #FF6B35;
+    animation: slideIn .35s forwards, todayGlow 2.4s ease-in-out .5s infinite !important;
+  }
+  @keyframes todayGlow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,107,53,0); }
+    50%      { box-shadow: 0 0 0 4px rgba(255,107,53,.22), inset 0 0 10px rgba(255,107,53,.1); }
+  }
+
+  /* timeline node */
+  .day-node {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    border: 2px solid rgba(255,255,255,.12);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all .3s ease;
+    position: relative;
+    z-index: 1;
+  }
+  .day-item.selected .day-node {
+    background: rgba(255,107,53,.3);
+    border-color: #FF6B35;
+  }
+  .day-item.today .day-node {
+    background: linear-gradient(135deg, #FF6B35, #F7C948);
+    border-color: #F7C948;
+    box-shadow: 0 0 12px rgba(255,107,53,.6);
+    animation: nodePulse 1.8s ease-in-out infinite;
+  }
+  @keyframes nodePulse {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.1); }
+  }
+  .day-num {
+    font-size: .85rem;
+    font-weight: 800;
+    color: rgba(255,255,255,.6);
+    line-height: 1;
+  }
+  .day-item.today .day-num { color: #fff; }
+  .day-item.selected .day-num { color: #FF6B35; }
+
+  .day-info { flex: 1; min-width: 0; }
+  .day-name-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2px;
+  }
+  .day-name-text {
+    font-size: .72rem;
+    font-weight: 700;
+    color: rgba(255,255,255,.5);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .day-item.today .day-name-text { color: #F7C948; }
+  .today-pill {
+    background: #FF6B35;
+    color: #fff;
+    font-size: .55rem;
+    padding: 1px 5px;
+    border-radius: 6px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    animation: pillPop .6s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pillPop {
+    from { transform: scale(0); }
+    to   { transform: scale(1); }
+  }
+  .day-preview {
+    font-size: .65rem;
+    color: rgba(255,255,255,.3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .day-item.today .day-preview { color: rgba(255,255,255,.5); }
+
+  /* sunday star */
+  .sunday-star {
+    font-size: .75rem;
+    opacity: .7;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 26px;
+    background: #F4EFE8;
+  }
+  .content::-webkit-scrollbar { width: 5px; }
+  .content::-webkit-scrollbar-thumb { background: rgba(255,107,53,.25); border-radius: 3px; }
+
+  /* day heading */
+  .day-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    animation: fadeDown .4s ease both;
+  }
+  @keyframes fadeDown {
+    from { opacity:0; transform:translateY(-16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .day-heading h2 {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -.5px;
+  }
+  .today-chip {
+    background: linear-gradient(135deg, #FF6B35, #F7C948);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 800;
+    box-shadow: 0 2px 10px rgba(255,107,53,.4);
+    animation: chipBounce .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes chipBounce {
+    from { transform: scale(0) rotate(-10deg); }
+    to   { transform: scale(1) rotate(0deg); }
+  }
+
+  /* section title */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: .68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* meal cards grid */
+  .meals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 13px;
+    margin-bottom: 20px;
+  }
+  .meal-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 17px 16px 15px;
+    box-shadow: 0 2px 14px rgba(0,0,0,.07);
+    border: 1px solid rgba(0,0,0,.055);
+    transition: transform .2s ease, box-shadow .2s ease;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(18px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .meal-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+
+  .meal-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+  }
+  .meal-card.breakfast::before { background: linear-gradient(90deg, #F7C948, #FF6B35); }
+  .meal-card.lunch::before     { background: linear-gradient(90deg, #FF6B35, #CC3D00); }
+  .meal-card.dinner::before    { background: linear-gradient(90deg, #3D5AFE, #1A1A6E); }
+
+  .meal-emoji { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+  .meal-type {
+    font-size: .6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+  .meal-card.breakfast .meal-type { color: #B8860B; }
+  .meal-card.lunch     .meal-type { color: #CC3D00; }
+  .meal-card.dinner    .meal-type { color: #3D5AFE; }
+
+  .meal-tag {
+    display: inline-block;
+    font-size: .58rem;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-weight: 700;
+    margin-bottom: 7px;
+    letter-spacing: .3px;
+  }
+  .meal-card.breakfast .meal-tag { background: #FFF3CD; color: #7D5A00; }
+  .meal-card.lunch     .meal-tag { background: #FFE8E0; color: #8B2500; }
+  .meal-card.dinner    .meal-tag { background: #E8EAFD; color: #2030A0; }
+
+  .meal-text {
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.45;
+  }
+
+  /* edit btn */
+  .edit-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .2s;
+    font-size: .8rem;
+    padding: 3px 7px;
+    border-radius: 7px;
+    color: var(--muted);
+  }
+  .meal-card:hover .edit-btn { opacity: 1; }
+  .edit-btn:hover { background: #f0f0f0; }
+
+  /* inline edit */
+  .editing .meal-text { display: none; }
+  .edit-area { display: none; }
+  .editing .edit-area { display: block; }
+  .edit-area textarea {
+    width: 100%;
+    border: 1.5px solid #FF6B35;
+    border-radius: 8px;
+    padding: 7px 9px;
+    font-size: .82rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+    color: var(--text);
+    outline: none;
+  }
+  .edit-actions { display: flex; gap: 5px; margin-top: 6px; }
+  .save-btn, .cancel-btn {
+    padding: 4px 12px;
+    border-radius: 7px;
+    border: none;
+    font-size: .72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s ease;
+  }
+  .save-btn:hover, .cancel-btn:hover { transform: scale(1.04); }
+  .save-btn   { background: #FF6B35; color: #fff; }
+  .cancel-btn { background: #f0f0f0; color: #555; }
+
+  /* ── BABY SECTION ── */
+  .baby-section {
+    background: linear-gradient(135deg, #FEF0F6 0%, #F2EFFF 100%);
+    border-radius: 20px;
+    padding: 18px 18px 16px;
+    border: 1px solid rgba(180,130,255,.25);
+    box-shadow: 0 2px 16px rgba(180,130,255,.12);
+    animation: fadeUp .5s .15s ease both;
+    margin-bottom: 16px;
+  }
+  .baby-hdr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .baby-hdr h3 { font-size: .95rem; font-weight: 800; color: #5A0080; }
+  .baby-age-badge {
+    background: #D8B5FF;
+    color: #3A005A;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: .65rem;
+    font-weight: 800;
+  }
+  .baby-note {
+    background: rgba(255,180,210,.25);
+    border-left: 3px solid #E91E8C;
+    padding: 6px 11px;
+    border-radius: 0 8px 8px 0;
+    font-size: .7rem;
+    color: #7A1045;
+    margin-bottom: 13px;
+    line-height: 1.5;
+  }
+  /* baby timeline — 4 steps in a row */
+  .baby-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    position: relative;
+  }
+  /* connecting line between cards */
+  .baby-grid::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: calc(12.5% + 4px);
+    right: calc(12.5% + 4px);
+    height: 2px;
+    background: linear-gradient(90deg, #FF9A9E, #A18CD1, #84FAB0, #D4FC79);
+    z-index: 0;
+    opacity: .5;
+  }
+  .baby-card {
+    background: #fff;
+    border-radius: 13px;
+    padding: 13px 11px 11px;
+    border: 1px solid rgba(180,130,255,.2);
+    transition: transform .2s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    text-align: center;
+  }
+  .baby-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .baby-card.b1::before     { background: linear-gradient(90deg, #FF9A9E, #FAD0C4); }
+  .baby-card.b2::before     { background: linear-gradient(90deg, #A18CD1, #FBC2EB); }
+  .baby-card.blunch::before { background: linear-gradient(90deg, #84FAB0, #8FD3F4); }
+  .baby-card.bdinner::before{ background: linear-gradient(90deg, #D4FC79, #96E6A1); }
+  .baby-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.1); }
+
+  /* step number bubble */
+  .baby-step {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .7rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 auto 6px;
+    position: relative;
+    z-index: 2;
+  }
+  .baby-card.b1     .baby-step { background: linear-gradient(135deg, #FF9A9E, #FF6B8A); }
+  .baby-card.b2     .baby-step { background: linear-gradient(135deg, #A18CD1, #7C4DFF); }
+  .baby-card.blunch .baby-step { background: linear-gradient(135deg, #84FAB0, #2DBD72); }
+  .baby-card.bdinner .baby-step{ background: linear-gradient(135deg, #D4FC79, #5DBD2D); }
+
+  .baby-card-label {
+    font-size: .58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .baby-card.b1 .baby-card-label     { color: #C04060; }
+  .baby-card.b2 .baby-card-label     { color: #6B3FA0; }
+  .baby-card.blunch .baby-card-label { color: #1A7A50; }
+  .baby-card.bdinner .baby-card-label{ color: #2D6A30; }
+  .baby-card-text {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  /* dadi tips */
+  .dadi-tips {
+    background: linear-gradient(135deg, #FFFDE7, #FFF8E1);
+    border-radius: 13px;
+    padding: 12px 15px;
+    border: 1px solid rgba(247,201,72,.35);
+    animation: fadeUp .5s .25s ease both;
+  }
+  .dadi-tips h4 {
+    font-size: .72rem; font-weight: 800;
+    color: #7A5A00; margin-bottom: 5px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dadi-tips p { font-size: .72rem; color: #6A4E00; line-height: 1.5; }
+
+  /* empty */
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 55vh;
+    color: var(--muted);
+    animation: fadeUp .4s ease both;
+    text-align: center;
+  }
+  .empty-icon { font-size: 60px; margin-bottom: 14px; animation: float 3s ease-in-out infinite; }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+  }
+  .empty-state p { font-size: .9rem; font-weight: 600; }
+  .empty-state small { font-size: .75rem; margin-top: 5px; opacity: .7; }
+
+  /* ── MODAL ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(5px);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn .3s ease both;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .overlay.hidden { display: none; }
+
+  .modal {
+    background: #fff;
+    border-radius: 22px;
+    padding: 28px;
+    width: 440px;
+    max-width: 92vw;
+    max-height: 82vh;
+    overflow-y: auto;
+    animation: modalIn .35s cubic-bezier(.34,1.56,.64,1) both;
+    box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  }
+  @keyframes modalIn {
+    from { opacity:0; transform:scale(.82) translateY(20px); }
+    to   { opacity:1; transform:scale(1)  translateY(0); }
+  }
+  .modal h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
+  .modal > p { font-size: .8rem; color: var(--muted); margin-bottom: 20px; }
+
+  .form-row { margin-bottom: 14px; }
+  .form-row label {
+    display: block;
+    font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--muted); margin-bottom: 5px;
+  }
+  .form-row select, .form-row input {
+    width: 100%;
+    padding: 9px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: .88rem;
+    font-family: inherit;
+    transition: border-color .2s;
+    color: var(--text);
+  }
+  .form-row select:focus, .form-row input:focus {
+    outline: none; border-color: #FF6B35;
+  }
+  .form-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .modal-actions { display: flex; gap: 9px; margin-top: 20px; }
+  .btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, #FF6B35, #F7C948);
+    color: #fff; border: none;
+    padding: 12px; border-radius: 12px;
+    font-size: .88rem; font-weight: 800;
+    cursor: pointer; transition: transform .2s, box-shadow .2s;
+    letter-spacing: .2px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255,107,53,.4); }
+  .btn-secondary {
+    background: #f4f4f4; color: #555;
+    border: none; padding: 12px 20px;
+    border-radius: 12px; font-size: .88rem;
+    font-weight: 700; cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-secondary:hover { background: #eee; }
+
+  .modal-divider {
+    border: none; border-top: 1px solid var(--border);
+    margin: 18px 0;
+  }
+  .modal-section-label {
+    font-size: .68rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .8px;
+    color: var(--muted); margin-bottom: 10px;
+  }
+
+  /* month tooltip on sidebar hover */
+  .month-tab-group { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  /* ── DAY NAV BAR (prev/next arrows) ── */
+  .day-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    user-select: none;
+  }
+  .nav-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,107,53,.35);
+    background: #fff;
+    color: #FF6B35;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s ease;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    flex-shrink: 0;
+  }
+  .nav-btn:hover:not(:disabled) {
+    background: #FF6B35;
+    color: #fff;
+    border-color: #FF6B35;
+    transform: scale(1.1);
+    box-shadow: 0 3px 12px rgba(255,107,53,.4);
+  }
+  .nav-btn:disabled { opacity: .25; cursor: default; }
+  .nav-counter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-progress {
+    flex: 1;
+    height: 4px;
+    background: #E8E0D8;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .nav-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FF6B35, #F7C948);
+    border-radius: 4px;
+    transition: width .35s cubic-bezier(.4,0,.2,1);
+  }
+  .nav-label {
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .wheel-hint {
+    font-size: .62rem;
+    color: rgba(136,136,136,.7);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .wheel-hint svg { opacity: .5; }
+
+  /* ── CONTENT SLIDE TRANSITION ── */
+  .content-inner {
+    animation: slideContent .28s cubic-bezier(.4,0,.2,1) both;
+  }
+  @keyframes slideContent {
+    from { opacity: 0; transform: translateX(22px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .content-inner.slide-left {
+    animation: slideContentLeft .28s cubic-bezier(.4,0,.2,1) both;
+  }
+  @keyframes slideContentLeft {
+    from { opacity: 0; transform: translateX(-22px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── HAMBURGER ── */
+  .hamburger {
+    display: none;
+    position: absolute;
+    left: 16px;
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.3);
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex-shrink: 0;
+    transition: background .2s;
+    z-index: 10;
+  }
+  .hamburger:hover { background: rgba(255,255,255,.3); }
+  .hamburger span {
+    display: block;
+    width: 18px; height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: all .3s ease;
+  }
+  .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+  .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  /* ── SIDEBAR OVERLAY (mobile) ── */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 90;
+    backdrop-filter: blur(2px);
+    animation: fadeIn .25s ease both;
+  }
+
+  /* ── SWIPE HINT (mobile) ── */
+  .swipe-hint {
+    display: none;
+    text-align: center;
+    font-size: .68rem;
+    color: rgba(136,136,136,.75);
+    padding: 8px 0 0;
+    letter-spacing: .3px;
+  }
+
+  /* ── MOBILE DAY PILL (bottom) ── */
+  .mobile-day-pill {
+    display: none;
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--sidebar);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-size: .8rem;
+    font-weight: 700;
+    box-shadow: 0 4px 20px rgba(0,0,0,.35);
+    z-index: 80;
+    cursor: pointer;
+    gap: 10px;
+    align-items: center;
+    border: 1px solid rgba(255,107,53,.4);
+    transition: transform .2s ease;
+    white-space: nowrap;
+  }
+  .mobile-day-pill:active { transform: translateX(-50%) scale(.96); }
+  .mobile-day-pill .pill-dot {
+    width: 8px; height: 8px;
+    background: #FF6B35;
+    border-radius: 50%;
+    animation: dotPulse 1.5s ease infinite;
+    flex-shrink: 0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    /* sidebar slides in from left as drawer */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 95;
+      transform: translateX(-100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      width: 280px;
+    }
+    .sidebar.open {
+      transform: translateX(0);
+      box-shadow: 6px 0 40px rgba(0,0,0,.5);
+    }
+    .sidebar-overlay { display: block; }
+
+    .hamburger { display: flex; }
+    .hdr-badges { display: none; }
+
+    .layout { overflow: hidden; }
+
+    .content {
+      padding: 14px 14px 70px; /* room for bottom pill */
+    }
+    .meals-grid { grid-template-columns: 1fr; }
+    .baby-grid  { grid-template-columns: 1fr 1fr; }
+    .baby-grid::before { display: none; }
+
+    .wheel-hint { display: none; }
+    .swipe-hint { display: block; }
+    .mobile-day-pill { display: flex; }
+
+    .day-heading h2 { font-size: 1.2rem; }
+    .day-nav { margin-bottom: 12px; }
+  }
+
+  @media (max-width: 400px) {
+    header h1 { font-size: .95rem; }
+    .hdr-logo { width: 30px; height: 30px; font-size: 16px; }
+  }
+
+  /* ── ROTLA PICKER ── */
+  .rotla-picker {
+    margin-top: 11px;
+    padding-top: 11px;
+    border-top: 1px dashed #EEE;
+  }
+  .rotla-title {
+    font-size: .6rem;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .rotla-opts {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .rotla-opt {
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1.5px solid #E8E0D8;
+    background: #FAFAF8;
+    color: #666;
+    font-size: .7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1;
+  }
+  .rotla-opt:hover {
+    border-color: #FF6B35;
+    color: #FF6B35;
+    background: #FFF3EE;
+    transform: translateY(-1px);
+  }
+  .rotla-opt.active {
+    background: linear-gradient(135deg, #FF6B35, #F7C948);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 10px rgba(255,107,53,.35);
+  }
+  .rotla-suggest {
+    font-size: .6rem;
+    color: #B0A090;
+    margin-top: 5px;
+    font-style: italic;
+  }
+
+  /* ── BABY RECIPE MODAL ── */
+  .recipe-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,8,30,.65);
+    backdrop-filter: blur(7px);
+    z-index: 600;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    animation: fadeIn .25s ease both;
+  }
+  .recipe-overlay.hidden { display: none; }
+
+  .recipe-modal {
+    background: #fff;
+    border-radius: 26px;
+    width: 500px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,.35);
+    animation: modalIn .38s cubic-bezier(.34,1.56,.64,1) both;
+    position: relative;
+  }
+  .recipe-modal::-webkit-scrollbar { width: 4px; }
+  .recipe-modal::-webkit-scrollbar-thumb { background: rgba(180,130,255,.4); border-radius: 2px; }
+
+  .recipe-hdr {
+    padding: 24px 22px 18px;
+    border-radius: 26px 26px 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .recipe-hdr::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #FF9A9E 0%, #C897F0 40%, #84C9FA 100%);
+    opacity: .18;
+  }
+  .recipe-hdr-top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 10px;
+    position: relative;
+  }
+  .recipe-title-wrap { flex: 1; }
+  .recipe-food-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #2C1A4E;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .recipe-badges {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    margin-top: 6px;
+  }
+  .recipe-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .65rem;
+    font-weight: 700;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .rb-age    { background: #FFE0F0; color: #880044; }
+  .rb-time   { background: #E8F4FD; color: #1A5276; }
+  .rb-serves { background: #E8FDF0; color: #1A5E30; }
+
+  .recipe-close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(44,26,78,.1);
+    border: none; cursor: pointer;
+    font-size: 1rem; color: #5A3A7A;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s ease; flex-shrink: 0;
+  }
+  .recipe-close:hover { background: rgba(44,26,78,.2); transform: scale(1.1); }
+
+  .recipe-emoji-row {
+    font-size: 2.4rem;
+    margin-bottom: 6px;
+    position: relative;
+  }
+
+  /* nutrition tags */
+  .recipe-nutrition {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    padding: 0 22px 14px;
+    border-bottom: 1px solid #F0EBF8;
+  }
+  .nut-tag {
+    background: linear-gradient(135deg, #F0E8FF, #E8F0FF);
+    color: #5A3A7A;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: .67rem;
+    font-weight: 700;
+    border: 1px solid rgba(160,120,220,.2);
+  }
+
+  /* body sections */
+  .recipe-body { padding: 16px 22px 20px; }
+
+  .recipe-section-title {
+    font-size: .68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9B80C0;
+    margin-bottom: 9px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .recipe-section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, #E0D0F0, transparent);
+  }
+
+  /* ingredients */
+  .ingredient-list { list-style: none; margin-bottom: 18px; }
+  .ingredient-list li {
+    display: flex; align-items: center; gap: 9px;
+    padding: 6px 0;
+    border-bottom: 1px solid #F8F4FF;
+    font-size: .85rem; color: #333;
+  }
+  .ingredient-list li:last-child { border-bottom: none; }
+  .ing-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: linear-gradient(135deg, #FF9A9E, #C897F0);
+    flex-shrink: 0;
+  }
+  .ing-qty {
+    font-weight: 700; color: #7C4DFF;
+    min-width: 60px; font-size: .78rem;
+  }
+
+  /* steps */
+  .step-list { list-style: none; margin-bottom: 18px; }
+  .step-item {
+    display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, #C897F0, #7C4DFF);
+    color: #fff; font-size: .75rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+    box-shadow: 0 2px 8px rgba(124,77,255,.3);
+  }
+  .step-text { font-size: .85rem; color: #333; line-height: 1.5; padding-top: 3px; }
+
+  /* tip/storage boxes */
+  .recipe-tip-box {
+    border-radius: 12px; padding: 12px 14px;
+    margin-bottom: 10px; font-size: .8rem; line-height: 1.5;
+    display: flex; gap: 9px; align-items: flex-start;
+  }
+  .recipe-tip-box.storage { background: #E8F8F0; border: 1px solid #A8D8B8; color: #1A5E30; }
+  .recipe-tip-box.tip     { background: #FFF3E0; border: 1px solid #FFCC80; color: #7A4A00; }
+  .recipe-tip-box.safety  { background: #FFF0F0; border: 1px solid #FFB0B0; color: #8B0000; }
+  .tip-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  /* clickable baby text */
+  .baby-card-text.clickable {
+    cursor: pointer;
+    transition: color .2s;
+  }
+  .baby-card-text.clickable:hover { color: #7C4DFF; }
+  .recipe-tap-hint {
+    font-size: .58rem;
+    color: #B0A0D0;
+    margin-top: 5px;
+    display: flex; align-items: center; gap: 3px;
+    font-style: italic;
+  }
+  .recipe-tap-hint svg { flex-shrink: 0; }
+
+  /* ── PWA INSTALL BANNER ── */
+  .install-banner {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--sidebar);
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    border: 1px solid rgba(255,107,53,.4);
+    z-index: 300;
+    transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+    max-width: 320px;
+    width: calc(100vw - 40px);
+  }
+  .install-banner.show { transform: translateX(-50%) translateY(0); }
+  .install-banner-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .install-banner-text { flex: 1; }
+  .install-banner-text strong { display: block; font-size: .85rem; margin-bottom: 2px; }
+  .install-banner-text span { font-size: .72rem; color: rgba(255,255,255,.65); }
+  .install-btn {
+    background: linear-gradient(135deg, #FF6B35, #F7C948);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: .75rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform .2s ease;
+  }
+  .install-btn:hover { transform: scale(1.05); }
+  .install-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,.5);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    line-height: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="hdr-left">
+    <div class="hdr-logo">&#127858;</div>
+    <div>
+      <h1>Tandel Meal Planner <span>&#8212; Gujarati Vegetarian</span></h1>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()" style="display:none"></div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="month-tabs" id="monthTabs"></div>
+    <button class="add-month-btn" onclick="openModal()">&#43; Add Future Month</button>
+    <div class="days-list" id="daysList"></div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content" id="mainContent">
+    <div class="empty-state">
+      <div class="empty-icon">&#127858;</div>
+      <p>Select a day from the left</p>
+      <small>Click any date to see the full meal plan</small>
+    </div>
+  </main>
+
+</div>
+
+<!-- BABY RECIPE MODAL -->
+<div class="recipe-overlay hidden" id="recipeOverlay" onclick="if(event.target===this)closeRecipe()">
+  <div class="recipe-modal" id="recipeModal">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- MOBILE DAY PILL -->
+<div class="mobile-day-pill" id="mobilePill" onclick="toggleSidebar()" style="display:none"></div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="install-banner" id="installBanner">
+  <div class="install-banner-icon">&#127858;</div>
+  <div class="install-banner-text">
+    <strong>Add to Home Screen</strong>
+    <span>Use as a mobile app &mdash; works offline!</span>
+  </div>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-close" onclick="dismissInstall()">&#10005;</button>
+</div>
+
+<!-- ADD MONTH MODAL -->
+<div class="overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <h2>&#128197; Add Future Month</h2>
+    <p>Create a new month and fill in meals day by day using the inline editor.</p>
+
+    <div class="form-row-grid">
+      <div class="form-row">
+        <label>Month</label>
+        <select id="newMonth">
+          <option value="01">January</option>
+          <option value="02">February</option>
+          <option value="03">March</option>
+          <option value="04">April</option>
+          <option value="05">May</option>
+          <option value="06">June</option>
+          <option value="07">July</option>
+          <option value="08" selected>August</option>
+          <option value="09">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Year</label>
+        <input type="number" id="newYear" value="2026" min="2026" max="2030">
+      </div>
+    </div>
+
+    <hr class="modal-divider">
+    <div class="modal-section-label">Quick fill (optional &#8212; you can edit inline later)</div>
+
+    <div class="form-row">
+      <label>Default Breakfast</label>
+      <input type="text" id="defBreakfast" placeholder="e.g. Batata Poha + Chai">
+    </div>
+    <div class="form-row">
+      <label>Default Lunch</label>
+      <input type="text" id="defLunch" placeholder="e.g. Dal Dhokli + Salad">
+    </div>
+    <div class="form-row">
+      <label>Default Dinner</label>
+      <input type="text" id="defDinner" placeholder="e.g. Moong Dal Khichdi">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="addMonth()">Create Month</button>
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   MEAL DATA  ─ July 2026 pre-loaded
+───────────────────────────────────────── */
+const BUILT_IN = {
+  "2026-07": {
+    monthName: "July 2026",
+    totalDays: 31,
+    days: {
+      1:  { dn:"Wednesday", f:{ b:"Batata Poha + Chai", l:"Dal Dhokli + Salad + Chaas", d:"Mug ni Dal + 2 Roti + Kachumber" }, baby:{ b1:"Suji (rawa) porridge with ghee drizzle", b2:"Mashed ripe banana", l:"Thin moong dal khichdi (no salt)", d:"Apple puree (warm)" }},
+      2:  { dn:"Thursday",  f:{ b:"Methi Thepla + Dahi + Chundo + Chai", l:"Gujarati Thali: Toor Dal + Ringan Batata Shaak + Roti + Rice + Kadhi + Papad + Pickle", d:"Daliya Khichdi + Dahi + Papad" }, baby:{ b1:"Ragi porridge with warm water", b2:"Boiled pear puree", l:"Moong dal water + rice mash", d:"Sweet potato mash (boiled, smooth)" }},
+      3:  { dn:"Friday",    f:{ b:"Soft Dhokla + Green Chutney + Chai", l:"Dudhi Chana nu Shaak + Roti + Moong Dal + Rice + Raita", d:"Moong Dal Khichdi + Ghee + Pickle" }, baby:{ b1:"Rice porridge (thin pej) with ghee", b2:"Mashed ripe papaya", l:"Carrot puree (boiled smooth)", d:"Banana mash" }},
+      4:  { dn:"Saturday",  f:{ b:"Rava Upma + Coconut Chutney + Chai", l:"Valor Papdi nu Shaak + Puri + Khatta Meetha Dal + Rice + Buttermilk", d:"Kadhi + Rice + Papad" }, baby:{ b1:"Suji porridge with ghee", b2:"Apple puree", l:"Thin moong dal khichdi", d:"Pumpkin puree" }},
+      5:  { dn:"Sunday",    f:{ b:"Fafda + Jalebi + Papaya Slices + Chai  [Sunday Special]", l:"Undhiyu + Puri + Shrikhand + Salad + Buttermilk", d:"Rotla + Ghee + Jaggery + Buttermilk" }, baby:{ b1:"Ragi porridge", b2:"Mashed banana", l:"Rice + toor dal mash", d:"Boiled sweet potato mash" }},
+      6:  { dn:"Monday",    f:{ b:"Moong Dal Chilla + Dahi + Chai", l:"Tindora nu Shaak + Dal Tadka + Roti + Rice + Papad + Pickle", d:"Doodh Daliya (milk porridge)" }, baby:{ b1:"Rice porridge (pej)", b2:"Pear puree", l:"Moong dal khichdi (very thin)", d:"Carrot puree" }},
+      7:  { dn:"Tuesday",   f:{ b:"Handvo + Green Chutney + Chai", l:"Sev Tameta nu Shaak + Khichdi + Kadhi + Roti + Buttermilk", d:"Mug ni Dal + 2 Roti + Kachumber" }, baby:{ b1:"Suji porridge", b2:"Papaya mash", l:"Rice + moong dal mash", d:"Apple puree" }},
+      8:  { dn:"Wednesday", f:{ b:"Corn Poha + Chai", l:"Bhinda (Okra) nu Shaak + Gujarati Kadhi + Roti + Rice + Papad", d:"Khichdi + Ghee + Dahi + Papad" }, baby:{ b1:"Ragi porridge with ghee", b2:"Banana mash", l:"Pumpkin + potato mash", d:"Pear puree" }},
+      9:  { dn:"Thursday",  f:{ b:"Besan Chilla + Dahi + Chai", l:"Panchkutiyu Shaak + Puri + Moong Dal + Rice + Raita + Pickle", d:"Daliya Khichdi + Buttermilk" }, baby:{ b1:"Rice porridge with ghee", b2:"Sweet potato mash", l:"Thin moong dal khichdi", d:"Apple puree" }},
+      10: { dn:"Friday",    f:{ b:"Patra + Green Chutney + Chai", l:"Methi Muthia ni Kadhi + Rice + Roti + Salad + Papad", d:"Moong Dal Khichdi + Ghee + Kachumber" }, baby:{ b1:"Suji porridge", b2:"Mashed ripe banana", l:"Rice + toor dal mash", d:"Carrot puree" }},
+      11: { dn:"Saturday",  f:{ b:"Sabudana Khichdi + Peanuts + Chai", l:"Kanda Batata nu Shaak + Puri + Dal + Khichdi + Buttermilk", d:"Kadhi + Rice + Papad" }, baby:{ b1:"Ragi porridge", b2:"Papaya mash", l:"Moong dal khichdi", d:"Banana mash" }},
+      12: { dn:"Sunday",    f:{ b:"Idada (steamed white dhokla) + Chutney + Chai  [Sunday Special]", l:"Vaghareli Khichdi + Kadhi + Papad + Mango Pickle + Salad", d:"Rotla + Ghee + Jaggery + Dahi" }, baby:{ b1:"Suji porridge with ghee", b2:"Apple puree", l:"Rice + moong dal mash", d:"Sweet potato mash" }},
+      13: { dn:"Monday",    f:{ b:"Batata Poha + Chai", l:"Gujarati Thali: Toor Dal + Dudhi Batata Shaak + Roti + Rice + Kadhi + Papad", d:"Mug ni Dal + 2 Roti + Salad" }, baby:{ b1:"Rice porridge (pej)", b2:"Pear puree", l:"Thin moong dal khichdi", d:"Carrot puree" }},
+      14: { dn:"Tuesday",   f:{ b:"Muthia (steamed) + Chutney + Chai", l:"Ringan nu Shaak + Dal Dhokli + Rice + Buttermilk + Papad", d:"Daliya Khichdi + Dahi + Papad" }, baby:{ b1:"Ragi porridge", b2:"Banana mash", l:"Rice + dal mash", d:"Pumpkin puree" }},
+      15: { dn:"Wednesday", f:{ b:"Methi Thepla + Dahi + Chai", l:"Gujarati Thali: Dal + Batata Shaak + Roti + Rice + Kadhi + Raita + Papad + Pickle", d:"Khichdi + Ghee + Papad + Pickle" }, baby:{ b1:"Suji porridge with ghee", b2:"Apple puree", l:"Moong dal khichdi", d:"Mashed banana" }},
+      16: { dn:"Thursday",  f:{ b:"Rava Upma + Coconut Chutney + Chai", l:"Surti Valor Papdi nu Shaak + Puri + Dal + Rice + Buttermilk", d:"Moong Dal Khichdi + Ghee + Dahi" }, baby:{ b1:"Rice porridge", b2:"Boiled sweet potato mash", l:"Carrot + potato puree", d:"Pear puree" }},
+      17: { dn:"Friday",    f:{ b:"Soft Dhokla + Chutney + Chai", l:"Tindora Batata nu Shaak + Kadhi + Roti + Rice + Papad", d:"Kadhi + Rice + Papad" }, baby:{ b1:"Ragi porridge", b2:"Papaya mash", l:"Thin moong dal khichdi", d:"Apple puree" }},
+      18: { dn:"Saturday",  f:{ b:"Khakhra + Dahi + Pickle + Chai", l:"Panchkutiyu Shaak + Puri + Dal + Rice + Raita + Pickle", d:"Doodh Daliya + Papad" }, baby:{ b1:"Suji porridge", b2:"Banana mash", l:"Rice + toor dal mash", d:"Sweet potato mash" }},
+      19: { dn:"Sunday",    f:{ b:"Fafda + Jalebi + Chai  [Sunday Special]", l:"Sev Usal + Puri + Dal Khichdi + Kadhi + Shrikhand + Salad", d:"Rotla + Ghee + Dahi + Jaggery" }, baby:{ b1:"Ragi porridge with ghee", b2:"Mashed pear", l:"Moong dal khichdi", d:"Carrot puree" }},
+      20: { dn:"Monday",    f:{ b:"Moong Dal Chilla + Dahi + Chai", l:"Bhinda nu Shaak + Gujarati Toor Dal + Roti + Rice + Buttermilk + Papad", d:"Mug ni Dal + Roti + Kachumber" }, baby:{ b1:"Rice porridge (pej)", b2:"Apple puree", l:"Rice + moong dal mash", d:"Banana mash" }},
+      21: { dn:"Tuesday",   f:{ b:"Handvo + Chutney + Chai", l:"Dudhi Chana nu Shaak + Roti + Dal + Rice + Raita + Pickle", d:"Daliya Khichdi + Buttermilk + Papad" }, baby:{ b1:"Suji porridge", b2:"Papaya mash", l:"Thin moong dal khichdi", d:"Pumpkin puree" }},
+      22: { dn:"Wednesday", f:{ b:"Corn Poha + Chai", l:"Gujarati Thali: Dal + Ringan Batata Shaak + Roti + Rice + Kadhi + Papad + Chundo", d:"Moong Dal Khichdi + Ghee + Dahi" }, baby:{ b1:"Ragi porridge", b2:"Banana mash", l:"Rice + toor dal mash", d:"Sweet potato mash" }},
+      23: { dn:"Thursday",  f:{ b:"Besan Chilla + Dahi + Chai", l:"Methi Muthia ni Kadhi + Rice + Roti + Salad + Papad", d:"Kadhi + Rice + Papad + Pickle" }, baby:{ b1:"Rice porridge with ghee", b2:"Apple puree", l:"Moong dal khichdi", d:"Pear puree" }},
+      24: { dn:"Friday",    f:{ b:"Patra + Chutney + Chai", l:"Dal Dhokli + Roti + Salad + Buttermilk", d:"Rotla + Ghee + Jaggery + Dahi" }, baby:{ b1:"Suji porridge", b2:"Mashed banana", l:"Rice + dal mash", d:"Carrot puree" }},
+      25: { dn:"Saturday",  f:{ b:"Sabudana Khichdi + Chai", l:"Vaghareli Khichdi + Kadhi + Papad + Pickle + Salad", d:"Mug ni Dal + 2 Roti + Kachumber" }, baby:{ b1:"Ragi porridge", b2:"Papaya mash", l:"Thin moong dal khichdi", d:"Apple puree" }},
+      26: { dn:"Sunday",    f:{ b:"Sukhdi + Thepla + Chai  [Sunday Special]", l:"Sev Tameta nu Shaak + Puri + Dal + Khichdi + Kadhi + Raita + Papad", d:"Doodh Daliya + Papad" }, baby:{ b1:"Suji porridge with ghee", b2:"Banana mash", l:"Rice + moong dal mash", d:"Sweet potato mash" }},
+      27: { dn:"Monday",    f:{ b:"Batata Poha + Chai", l:"Gujarati Thali: Toor Dal + Kanda Batata Shaak + Roti + Rice + Kadhi + Papad + Pickle", d:"Khichdi + Ghee + Dahi + Papad" }, baby:{ b1:"Rice porridge (pej)", b2:"Pear puree", l:"Moong dal khichdi", d:"Carrot puree" }},
+      28: { dn:"Tuesday",   f:{ b:"Idada + Chutney + Chai", l:"Panchkutiyu Shaak + Puri + Dal + Rice + Buttermilk + Papad", d:"Moong Dal Khichdi + Ghee + Kachumber" }, baby:{ b1:"Ragi porridge", b2:"Apple puree", l:"Rice + dal mash", d:"Banana mash" }},
+      29: { dn:"Wednesday", f:{ b:"Methi Thepla + Dahi + Chai", l:"Valor Papdi nu Shaak + Roti + Dal + Rice + Raita + Pickle", d:"Kadhi + Rice + Papad" }, baby:{ b1:"Suji porridge", b2:"Papaya mash", l:"Thin moong dal khichdi", d:"Pumpkin puree" }},
+      30: { dn:"Thursday",  f:{ b:"Rava Upma + Coconut Chutney + Chai", l:"Ringan nu Shaak + Dal Dhokli + Roti + Buttermilk + Papad", d:"Daliya Khichdi + Dahi + Papad" }, baby:{ b1:"Rice porridge with ghee", b2:"Banana mash", l:"Rice + moong dal mash", d:"Sweet potato mash" }},
+      31: { dn:"Friday",    f:{ b:"Soft Dhokla + Green Chutney + Chai", l:"Full Gujarati Thali: Dal + Batata Shaak + Roti + Rice + Kadhi + Shrikhand + Papad + Pickle  [Month End Special]", d:"Rotla + Ghee + Jaggery + Buttermilk" }, baby:{ b1:"Suji porridge", b2:"Apple puree", l:"Moong dal khichdi", d:"Carrot puree" }}
+    }
+  }
+};
+
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+let allData  = {};          // merged built-in + localStorage
+let activeKey = "2026-07"; // currently shown month key
+let activeDay = null;
+
+const MONTH_NAMES = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function daysInMonth(y, m) {
+  return new Date(y, m, 0).getDate();
+}
+
+/* ─────────────────────────────────────────
+   LOAD / SAVE
+───────────────────────────────────────── */
+function loadData() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("mealPlan") || "{}"); } catch(e){}
+  // deep merge built-in first, then overlay saved
+  allData = JSON.parse(JSON.stringify(BUILT_IN));
+  for (const key in saved) {
+    if (allData[key]) {
+      // merge day-level
+      for (const d in saved[key].days) {
+        allData[key].days[d] = saved[key].days[d];
+      }
+    } else {
+      allData[key] = saved[key];
+    }
+  }
+}
+
+function saveData() {
+  // only save delta from built-in to keep storage small; simpler: save everything
+  localStorage.setItem("mealPlan", JSON.stringify(allData));
+}
+
+/* ─────────────────────────────────────────
+   CURRENT DATE
+───────────────────────────────────────── */
+function todayKey() {
+  const n = new Date();
+  const y = n.getFullYear();
+  const m = String(n.getMonth()+1).padStart(2,"0");
+  return { key: `${y}-${m}`, day: n.getDate() };
+}
+
+/* ─────────────────────────────────────────
+   RENDER SIDEBAR MONTH TABS
+───────────────────────────────────────── */
+function renderTabs() {
+  const tabsEl = document.getElementById("monthTabs");
+  tabsEl.innerHTML = "";
+  const sorted = Object.keys(allData).sort();
+  sorted.forEach(key => {
+    const btn = document.createElement("button");
+    btn.className = "month-tab" + (key === activeKey ? " active" : "");
+    btn.textContent = allData[key].monthName;
+    btn.onclick = () => { activeKey = key; activeDay = null; render(); };
+    tabsEl.appendChild(btn);
+  });
+}
+
+/* ─────────────────────────────────────────
+   RENDER DAY LIST
+───────────────────────────────────────── */
+function renderDayList() {
+  const listEl = document.getElementById("daysList");
+  listEl.innerHTML = "";
+  const month = allData[activeKey];
+  if (!month) return;
+
+  const td = todayKey();
+
+  for (let d = 1; d <= month.totalDays; d++) {
+    const dayData = month.days[d] || {};
+    const isToday  = (activeKey === td.key && d === td.day);
+    const isSel    = (d === activeDay);
+    const isSunday = (dayData.dn === "Sunday");
+
+    const item = document.createElement("div");
+    item.className = "day-item" + (isToday ? " today" : "") + (isSel ? " selected" : "");
+    item.dataset.day = d;
+
+    const bPreview = (dayData.f && dayData.f.b) ? dayData.f.b.split("+")[0].trim() : "No meal set";
+
+    item.innerHTML = `
+      <div class="day-node">
+        <span class="day-num">${d}</span>
+      </div>
+      <div class="day-info">
+        <div class="day-name-row">
+          <span class="day-name-text">${dayData.dn || ""}</span>
+          ${isToday ? '<span class="today-pill">TODAY</span>' : ""}
+          ${isSunday && !isToday ? '<span class="sunday-star">&#9733;</span>' : ""}
+        </div>
+        <div class="day-preview">${bPreview}</div>
+      </div>`;
+
+    item.onclick = () => { activeDay = d; render(); };
+    listEl.appendChild(item);
+
+    // stagger animation
+    setTimeout(() => item.classList.add("visible"), (d - 1) * 18);
+  }
+
+  // scroll to today or selected
+  setTimeout(() => {
+    const target = listEl.querySelector(`.day-item.today`) || listEl.querySelector(`.day-item.selected`);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 80);
+}
+
+/* ─────────────────────────────────────────
+   RENDER MAIN CONTENT
+───────────────────────────────────────── */
+function renderContent(slideDir) {
+  const el = document.getElementById("mainContent");
+  if (!activeDay) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">&#127858;</div>
+      <p>Select a day from the left</p>
+      <small>Click any date to see the full meal plan</small>
+    </div>`;
+    updateMobilePill();
+    return;
+  }
+
+  const month   = allData[activeKey];
+  const dayData = month.days[activeDay] || {};
+  const f       = dayData.f   || {};
+  const baby    = dayData.baby || {};
+  const td      = todayKey();
+  const isToday = (activeKey === td.key && activeDay === td.day);
+
+  const [y, m] = activeKey.split("-");
+  const dateStr = `${dayData.dn || ""}, ${MONTH_NAMES[parseInt(m)]} ${activeDay}, ${y}`;
+  const dadiNote = getDadiNote(dayData.dn);
+  const total    = month.totalDays;
+  const pct      = Math.round((activeDay / total) * 100);
+  const slideClass = slideDir === "left" ? "slide-left" : "";
+
+  el.innerHTML = `
+    <div class="content-inner ${slideClass}">
+
+    <div class="day-nav">
+      <button class="nav-btn" id="navPrev" onclick="navigateDay(-1)" ${activeDay <= 1 ? "disabled" : ""} title="Previous day (&#8592;)">&#8592;</button>
+      <div class="nav-counter">
+        <span class="nav-label">Day ${activeDay} / ${total}</span>
+        <div class="nav-progress"><div class="nav-progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      <button class="nav-btn" id="navNext" onclick="navigateDay(1)" ${activeDay >= total ? "disabled" : ""} title="Next day (&#8594;)">&#8594;</button>
+      <span class="wheel-hint">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M12 7v3"/></svg>
+        Scroll to navigate
+      </span>
+    </div>
+
+    <div class="day-heading">
+      <h2>${dateStr}</h2>
+      ${isToday ? '<span class="today-chip">&#9200; Today</span>' : ""}
+    </div>
+
+    <div class="section-label">&#128106; Family Meals &mdash; Lunch Heavy | Dinner Light</div>
+    <div class="meals-grid">
+      ${mealCard("breakfast","&#9728;&#65039;","Breakfast","Light start to day", f.b || "", "b", activeKey, activeDay)}
+      ${mealCard("lunch","&#127818;","Lunch","Heavy &amp; nutritious", f.l || "", "l", activeKey, activeDay)}
+      ${mealCard("dinner","&#127769;","Dinner","Light &amp; easy", f.d || "", "d", activeKey, activeDay)}
+    </div>
+
+    <div class="baby-section">
+      <div class="baby-hdr">
+        <span style="font-size:1.4rem">&#128118;</span>
+        <h3>Baby Dikri &mdash; 4 Meals</h3>
+        <span class="baby-age-badge">8 Months</span>
+      </div>
+      <div class="baby-note">
+        No salt &bull; No sugar &bull; No honey &bull; All pureed / mashed &bull; Breast milk / formula continues
+      </div>
+      <div class="baby-grid">
+        ${babyCard("b1",     "Breakfast 1", "&#9728;&#65039;", "1", baby.b1 || "", "b1", activeKey, activeDay)}
+        ${babyCard("b2",     "Breakfast 2", "&#127859;",       "2", baby.b2 || "", "b2", activeKey, activeDay)}
+        ${babyCard("blunch", "Lunch",       "&#127818;",       "3", baby.l  || "", "bl", activeKey, activeDay)}
+        ${babyCard("bdinner","Dinner",      "&#127769;",       "4", baby.d  || "", "bd", activeKey, activeDay)}
+      </div>
+    </div>
+
+    <div class="dadi-tips">
+      <h4>&#128116; Dadi Ma Special Notes</h4>
+      <p>${dadiNote}</p>
+    </div>
+
+    <div class="swipe-hint">&#11013; Swipe left / right to navigate days &#10145;</div>
+
+    </div>`; /* close .content-inner */
+
+  updateMobilePill();
+
+  // attach edit handlers
+  el.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); startEdit(btn); };
+  });
+  el.querySelectorAll(".save-btn").forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); saveEdit(btn); };
+  });
+  el.querySelectorAll(".cancel-btn").forEach(btn => {
+    btn.onclick = (e) => { e.stopPropagation(); cancelEdit(btn); };
+  });
+}
+
+function mealCard(cls, emoji, label, tag, text, field, mKey, day) {
+  const isDinner = cls === "dinner";
+  let rotlaHTML  = "";
+  if (isDinner) {
+    const dayData  = (allData[mKey] && allData[mKey].days[day]) || {};
+    const saved    = dayData.rotla;
+    const suggest  = suggestRotla(day);
+    const current  = saved || suggest;
+    const isManual = !!saved;
+    rotlaHTML = `
+      <div class="rotla-picker">
+        <div class="rotla-title">&#127838; Rotla Type</div>
+        <div class="rotla-opts">
+          <button class="rotla-opt ${current==="jawar"?"active":""}"
+            onclick="setRotla('${mKey}',${day},'jawar')">&#127807; Jawar</button>
+          <button class="rotla-opt ${current==="bajri"?"active":""}"
+            onclick="setRotla('${mKey}',${day},'bajri')">&#127807; Bajri</button>
+          <button class="rotla-opt ${current==="chokha"?"active":""}"
+            onclick="setRotla('${mKey}',${day},'chokha')">&#127859; Chokha</button>
+        </div>
+        <div class="rotla-suggest">${isManual ? "&#10003; Your choice" : "&#128161; Suggested for today"}</div>
+      </div>`;
+  }
+  return `
+    <div class="meal-card ${cls}" style="animation-delay:${cls==="breakfast"?0:cls==="lunch"?.08:.16}s">
+      <button class="edit-btn" data-field="${field}" data-mkey="${mKey}" data-day="${day}" title="Edit">&#9998;</button>
+      <span class="meal-emoji">${emoji}</span>
+      <div class="meal-type">${label}</div>
+      <div class="meal-tag">${tag}</div>
+      <div class="meal-text">${text || '<span style="color:#bbb;font-style:italic;font-weight:400">Not set &mdash; click &#9998; to add</span>'}</div>
+      <div class="edit-area">
+        <textarea rows="3">${text || ""}</textarea>
+        <div class="edit-actions">
+          <button class="save-btn" data-field="${field}" data-mkey="${mKey}" data-day="${day}">Save</button>
+          <button class="cancel-btn">Cancel</button>
+        </div>
+      </div>
+      ${rotlaHTML}
+    </div>`;
+}
+
+function suggestRotla(day) {
+  return ["jawar","bajri","chokha"][(day - 1) % 3];
+}
+
+function setRotla(mKey, day, type) {
+  day = parseInt(day);
+  if (!allData[mKey].days[day])      allData[mKey].days[day]      = { f:{}, baby:{} };
+  allData[mKey].days[day].rotla = type;
+  saveData();
+  renderContent(_lastDir);
+}
+
+function babyCard(cls, label, emoji, step, text, field, mKey, day) {
+  const hasRecipe = text && findRecipe(text);
+  const clickable = hasRecipe ? "clickable" : "";
+  const hint = hasRecipe
+    ? `<div class="recipe-tap-hint">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Tap for recipe
+      </div>` : "";
+  const clickAttr = hasRecipe ? `onclick="showRecipe('${text.replace(/'/g,"\\'")}')"` : "";
+  return `
+    <div class="baby-card ${cls}">
+      <button class="edit-btn" data-field="${field}" data-mkey="${mKey}" data-day="${day}" title="Edit">&#9998;</button>
+      <div class="baby-step">${step}</div>
+      <div class="baby-card-label">${emoji} ${label}</div>
+      <div class="meal-text baby-card-text ${clickable}" ${clickAttr}>
+        ${text || '<span style="color:#bbb;font-style:italic;font-weight:400">Not set</span>'}
+      </div>
+      ${hint}
+      <div class="edit-area">
+        <textarea rows="2">${text || ""}</textarea>
+        <div class="edit-actions">
+          <button class="save-btn" data-field="${field}" data-mkey="${mKey}" data-day="${day}">Save</button>
+          <button class="cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function getDadiNote(dayName) {
+  const notes = {
+    Sunday:    "Sunday special &mdash; undhiyu or full thali. Keep her portion soft and less spicy. Offer shrikhand diluted with extra milk.",
+    Monday:    "Light on oil today. Soft-cooked tindora or suran shaak. Doodh daliya at dinner is ideal for digestion.",
+    Tuesday:   "Handvo batter should be well-fermented and soft. Mug ni dal is easy on her stomach.",
+    Wednesday: "Poha or corn poha &mdash; soak well for softness. Extra ghee on dal for joint health.",
+    Thursday:  "Besan chilla or patra &mdash; steam rather than fry. Daliya khichdi for dinner is excellent.",
+    Friday:    "Patra &mdash; steam well, no extra frying. Moong dal khichdi with extra ghee at dinner.",
+    Saturday:  "Sabudana khichdi &mdash; soak pearls overnight for softness. Khakhra only if teeth allow."
+  };
+  return notes[dayName] || "Keep all shaaks less spicy and well-cooked for Dadi Ma. Add ghee to roti and dal daily. Avoid deep-fried items more than twice a week.";
+}
+
+/* ─────────────────────────────────────────
+   INLINE EDIT
+───────────────────────────────────────── */
+function startEdit(btn) {
+  const card = btn.closest(".meal-card, .baby-card");
+  card.classList.add("editing");
+  const ta = card.querySelector("textarea");
+  ta.focus();
+  ta.selectionStart = ta.value.length;
+}
+
+function saveEdit(btn) {
+  const mKey = btn.dataset.mkey;
+  const day  = parseInt(btn.dataset.day);
+  const field = btn.dataset.field;
+  const card  = btn.closest(".meal-card, .baby-card");
+  const val   = card.querySelector("textarea").value.trim();
+
+  // ensure path
+  if (!allData[mKey].days[day]) allData[mKey].days[day] = { f:{}, baby:{} };
+  if (!allData[mKey].days[day].f) allData[mKey].days[day].f = {};
+  if (!allData[mKey].days[day].baby) allData[mKey].days[day].baby = {};
+
+  if      (field === "b")  allData[mKey].days[day].f.b = val;
+  else if (field === "l")  allData[mKey].days[day].f.l = val;
+  else if (field === "d")  allData[mKey].days[day].f.d = val;
+  else if (field === "b1") allData[mKey].days[day].baby.b1 = val;
+  else if (field === "b2") allData[mKey].days[day].baby.b2 = val;
+  else if (field === "bl") allData[mKey].days[day].baby.l  = val;
+  else if (field === "bd") allData[mKey].days[day].baby.d  = val;
+
+  saveData();
+  render(); // re-render
+}
+
+function cancelEdit(btn) {
+  const card = btn.closest(".meal-card, .baby-card");
+  card.classList.remove("editing");
+}
+
+/* ─────────────────────────────────────────
+   ADD MONTH MODAL
+───────────────────────────────────────── */
+function openModal() {
+  document.getElementById("modalOverlay").classList.remove("hidden");
+}
+function closeModal() {
+  document.getElementById("modalOverlay").classList.add("hidden");
+}
+document.getElementById("modalOverlay").addEventListener("click", function(e){
+  if (e.target === this) closeModal();
+});
+
+function addMonth() {
+  const m    = document.getElementById("newMonth").value;
+  const y    = parseInt(document.getElementById("newYear").value);
+  const key  = `${y}-${m}`;
+  const defB = document.getElementById("defBreakfast").value.trim();
+  const defL = document.getElementById("defLunch").value.trim();
+  const defD = document.getElementById("defDinner").value.trim();
+
+  if (allData[key]) {
+    alert(`${MONTH_NAMES[parseInt(m)]} ${y} already exists!`);
+    return;
+  }
+
+  const total  = daysInMonth(y, parseInt(m));
+  const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const startDay = new Date(y, parseInt(m)-1, 1).getDay(); // 0=Sun
+
+  const days = {};
+  for (let d = 1; d <= total; d++) {
+    const dn = dayNames[(startDay + d - 1) % 7];
+    days[d] = {
+      dn,
+      f:    { b: defB || "", l: defL || "", d: defD || "" },
+      baby: { b1: "", b2: "", l: "", d: "" }
+    };
+  }
+
+  allData[key] = {
+    monthName: `${MONTH_NAMES[parseInt(m)]} ${y}`,
+    totalDays: total,
+    days
+  };
+
+  saveData();
+  activeKey = key;
+  activeDay = 1;
+  closeModal();
+  render();
+}
+
+/* ─────────────────────────────────────────
+   MASTER RENDER
+───────────────────────────────────────── */
+function render(slideDir) {
+  renderTabs();
+  renderDayList();
+  renderContent(slideDir);
+}
+
+/* ─────────────────────────────────────────
+   DAY NAVIGATION
+───────────────────────────────────────── */
+let _lastDir = "right"; // track direction for slide animation
+
+function navigateDay(dir) {
+  const month = allData[activeKey];
+  if (!month) return;
+  if (!activeDay) { activeDay = dir > 0 ? 1 : month.totalDays; }
+  else {
+    const next = activeDay + dir;
+    if (next < 1 || next > month.totalDays) return;
+    activeDay = next;
+  }
+  _lastDir = dir > 0 ? "right" : "left";
+  renderTabs();
+  renderDayList();
+  renderContent(_lastDir);
+}
+
+/* mobile pill */
+function updateMobilePill() {
+  const pill = document.getElementById("mobilePill");
+  if (!pill) return;
+  const month = allData[activeKey];
+  if (!activeDay || !month) { pill.style.display = "none"; return; }
+  const dayData = month.days[activeDay] || {};
+  pill.style.display = "flex";
+  pill.innerHTML = `<span class="pill-dot"></span> ${dayData.dn || ""} &bull; Day ${activeDay} of ${month.totalDays}`;
+}
+
+/* ── MOUSE WHEEL on right content ── */
+(function attachWheel() {
+  let _wTimer = null;
+  let _accumulated = 0;
+  const THRESHOLD = 60; // px of scroll before moving day
+
+  document.getElementById("mainContent").addEventListener("wheel", function(e) {
+    // only intercept horizontal or when content is at scroll edge
+    const el = this;
+    const atTop    = el.scrollTop <= 0;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+
+    // horizontal wheel always navigates
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      e.preventDefault();
+      _accumulated += e.deltaX;
+    } else {
+      // vertical: only navigate when at edge OR shift held
+      if (e.shiftKey || atTop && e.deltaY < 0 || atBottom && e.deltaY > 0) {
+        e.preventDefault();
+        _accumulated += e.deltaY;
+      } else {
+        return; // let normal scroll happen
+      }
+    }
+
+    clearTimeout(_wTimer);
+    _wTimer = setTimeout(() => {
+      if (Math.abs(_accumulated) >= THRESHOLD) {
+        navigateDay(_accumulated > 0 ? 1 : -1);
+        _accumulated = 0;
+      }
+    }, 80);
+  }, { passive: false });
+})();
+
+/* ── KEYBOARD arrows + Escape ── */
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") { closeRecipe(); return; }
+  if (["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+    e.preventDefault();
+    navigateDay(1);
+  } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+    e.preventDefault();
+    navigateDay(-1);
+  }
+});
+
+/* ── TOUCH SWIPE on right content ── */
+(function attachSwipe() {
+  const el = document.getElementById("mainContent");
+  let _tx = 0, _ty = 0, _locked = null;
+
+  el.addEventListener("touchstart", function(e) {
+    _tx = e.touches[0].clientX;
+    _ty = e.touches[0].clientY;
+    _locked = null;
+  }, { passive: true });
+
+  el.addEventListener("touchend", function(e) {
+    const dx = e.changedTouches[0].clientX - _tx;
+    const dy = e.changedTouches[0].clientY - _ty;
+    if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx) * 1.2) return; // not a horizontal swipe
+    navigateDay(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
+
+/* ── SIDEBAR TOGGLE (mobile) ── */
+function toggleSidebar() {
+  const sb  = document.getElementById("sidebar");
+  const ovl = document.getElementById("sidebarOverlay");
+  const hbg = document.getElementById("hamburger");
+  const open = sb.classList.toggle("open");
+  hbg.classList.toggle("open", open);
+  ovl.style.display = open ? "block" : "none";
+  // close sidebar when a day is selected on mobile
+  if (!open) return;
+  document.getElementById("daysList").querySelectorAll(".day-item").forEach(item => {
+    item.addEventListener("click", function handler() {
+      if (window.innerWidth <= 768) toggleSidebar();
+      item.removeEventListener("click", handler);
+    });
+  });
+}
+
+/* ─────────────────────────────────────────
+   INIT  (called after all const declarations)
+───────────────────────────────────────── */
+function _appInit() {
+  loadData();
+
+  // auto-select current month+day if it exists in data
+  const td = todayKey();
+  if (allData[td.key]) {
+    activeKey = td.key;
+    activeDay = td.day;
+  } else {
+    // fall back to first available month, day 1
+    const first = Object.keys(allData).sort()[0];
+    if (first) { activeKey = first; activeDay = 1; }
+  }
+
+  render();
+}
+
+/* ─────────────────────────────────────────
+   BABY RECIPE ENGINE
+───────────────────────────────────────── */
+const BABY_RECIPES = [
+  {
+    keys: ["suji","rava","rawa"],
+    name: "Suji (Rawa) Porridge",
+    emoji: "🥣",
+    age: "6+ months",
+    prepTime: "10 min",
+    serves: "1 baby",
+    nutrition: ["Iron","B-vitamins","Easy to digest","Energy"],
+    ingredients: [
+      { qty:"2 tbsp", item:"Fine suji (rawa) — not coarse" },
+      { qty:"¾ cup", item:"Water (or breast milk/formula)" },
+      { qty:"1–2 drops", item:"Pure desi ghee" }
+    ],
+    steps: [
+      "Dry roast suji in a small pan on low flame for 2–3 min, stirring, until it gives a light nutty aroma. Do not brown.",
+      "Pour in water or breast milk slowly while stirring to avoid lumps.",
+      "Cook on low flame, stirring constantly, for 5–7 min until thick and smooth.",
+      "Remove from heat. Drizzle ghee and mix in.",
+      "Cool to lukewarm (test on wrist). Thin with boiled water or milk if needed.",
+      "Feed with a soft-tipped spoon. First time — offer just 1–2 spoons to check tolerance."
+    ],
+    tip: "Always use fine suji. Coarse suji is hard to digest. You can make it savoury by skipping ghee and adding a tiny pinch of jeera powder (only after 8 months).",
+    storage: "Best served fresh. Refrigerate up to 12 hours; reheat with a splash of water.",
+    safety: "No salt, no sugar, no honey. Introduce only after rice/dal porridge is well accepted."
+  },
+  {
+    keys: ["ragi","finger millet"],
+    name: "Ragi (Finger Millet) Porridge",
+    emoji: "🌾",
+    age: "6+ months",
+    prepTime: "12 min",
+    serves: "1 baby",
+    nutrition: ["Calcium","Iron","Protein","Fibre"],
+    ingredients: [
+      { qty:"1 tbsp", item:"Ragi flour (homemade or store-bought)" },
+      { qty:"½ cup", item:"Water" },
+      { qty:"2 tbsp", item:"Breast milk or formula (optional, to serve)" }
+    ],
+    steps: [
+      "Mix ragi flour with 2 tbsp cold water in a small bowl to form a smooth, lump-free paste.",
+      "Bring remaining water to a full boil in a saucepan.",
+      "Pour the ragi paste into the boiling water while stirring continuously.",
+      "Reduce flame to low. Cook, stirring constantly, for 8–10 min until thick and no raw smell remains.",
+      "Remove from heat. Let it cool.",
+      "Stir in breast milk or formula to thin to desired consistency before serving."
+    ],
+    tip: "Ragi is one of the richest plant sources of calcium — excellent for bone development. Introduce after baby has tolerated rice and moong dal without issues.",
+    storage: "Best fresh. Can store up to 8 hours in refrigerator. Do not freeze.",
+    safety: "No salt, no sugar. If using store-bought ragi flour, check for additives. Prefer plain ragi flour."
+  },
+  {
+    keys: ["rice porridge","pej","rice water"],
+    name: "Rice Porridge (Pej) with Ghee",
+    emoji: "🍚",
+    age: "6+ months",
+    prepTime: "20 min",
+    serves: "1 baby",
+    nutrition: ["Carbohydrates","Easy digestion","Energy","Gut-friendly"],
+    ingredients: [
+      { qty:"2 tbsp", item:"Rice (any soft variety — sona masoori or basmati)" },
+      { qty:"1½ cups", item:"Water" },
+      { qty:"1–2 drops", item:"Pure desi ghee" }
+    ],
+    steps: [
+      "Wash rice 2–3 times until water runs clear.",
+      "Add rice and water to pressure cooker. Cook for 4–5 whistles on medium flame.",
+      "Allow pressure to release naturally. Open and stir — rice should be very mushy.",
+      "Blend or mash with back of spoon until completely smooth.",
+      "Strain through a fine sieve for a velvety pej (rice water + soft rice).",
+      "Stir in ghee. Cool to lukewarm and serve."
+    ],
+    tip: "Pej (thin rice water) is the gentlest first food in Gujarati tradition. Excellent after vaccinations or mild illness. The ghee improves fat-soluble vitamin absorption.",
+    storage: "Refrigerate up to 24 hrs. Add water while reheating as it thickens on cooling.",
+    safety: "No salt, no sugar. For babies under 8 months, always strain through a fine sieve."
+  },
+  {
+    keys: ["banana","kela"],
+    name: "Mashed Ripe Banana",
+    emoji: "🍌",
+    age: "6+ months",
+    prepTime: "2 min",
+    serves: "½ banana",
+    nutrition: ["Potassium","Vitamin B6","Natural energy","Prebiotic fibre"],
+    ingredients: [
+      { qty:"½–1", item:"Small ripe banana (yellow with brown spots = perfectly ripe)" },
+      { qty:"1 tsp", item:"Breast milk or formula (for smoother texture, optional)" }
+    ],
+    steps: [
+      "Choose a ripe banana — it should be yellow with a few brown spots for maximum sweetness and digestibility.",
+      "Peel and break off a small piece into a clean bowl.",
+      "Mash firmly with the back of a fork until completely smooth with no lumps.",
+      "Mix in a teaspoon of breast milk or formula if needed for thinner consistency.",
+      "Serve immediately — banana browns and loses nutrients quickly once mashed."
+    ],
+    tip: "Banana is naturally sweet — babies love it! It can be constipating if given daily. Alternate with papaya or pear to balance digestion.",
+    storage: "Must be served fresh. Do NOT store mashed banana — it oxidises and browns within minutes.",
+    safety: "Ensure no whole pieces. Fully mashed only. Overripe (very mushy) bananas are best for young babies."
+  },
+  {
+    keys: ["pear","nashpati"],
+    name: "Pear Puree",
+    emoji: "🍐",
+    age: "6+ months",
+    prepTime: "15 min",
+    serves: "1 baby",
+    nutrition: ["Vitamin C","Fibre","Natural laxative","Folate"],
+    ingredients: [
+      { qty:"1", item:"Ripe pear (soft to touch)" },
+      { qty:"2–3 tbsp", item:"Water (for blending)" }
+    ],
+    steps: [
+      "Wash pear thoroughly under running water.",
+      "Peel, core and cut into small cubes.",
+      "Place in steamer basket over boiling water. Steam for 10–12 min until fork-tender.",
+      "Transfer to blender with 2 tbsp of the steaming water.",
+      "Blend until completely smooth. Strain through fine sieve for extra smoothness.",
+      "Cool to lukewarm and serve."
+    ],
+    tip: "Pear is a natural and gentle remedy for constipation in babies. Introduce when baby seems to strain. Combine with banana if needed for consistency balance.",
+    storage: "Refrigerate in airtight container up to 48 hours. Freeze in ice cube trays up to 1 month.",
+    safety: "Always peel and remove seeds. Raw pear is not suitable — always cook for babies under 10 months."
+  },
+  {
+    keys: ["apple","seb"],
+    name: "Apple Puree",
+    emoji: "🍎",
+    age: "6+ months",
+    prepTime: "15 min",
+    serves: "1 baby",
+    nutrition: ["Vitamin C","Quercetin","Pectin fibre","Antioxidants"],
+    ingredients: [
+      { qty:"½", item:"Sweet apple (Fuji, Royal Gala or Shimla)" },
+      { qty:"2 tbsp", item:"Water" }
+    ],
+    steps: [
+      "Wash apple well. Peel, core and cut into small pieces.",
+      "Place in small saucepan with 2 tbsp water.",
+      "Cover and cook on low-medium flame for 10–12 min, stirring once, until very soft.",
+      "Mash with fork or blend until smooth.",
+      "Strain for velvety texture. Cool before serving.",
+      "For 8+ month babies: finely grated raw apple (no cooking needed) is a great texture upgrade."
+    ],
+    tip: "Cooked apple is much easier to digest than raw for young babies. Can be mixed with banana, pear or sweet potato for combo purees.",
+    storage: "Refrigerate 48 hrs or freeze up to 1 month in ice cube trays.",
+    safety: "Always peel and cook. Never give raw apple pieces — choking hazard."
+  },
+  {
+    keys: ["papaya","papita"],
+    name: "Papaya Mash",
+    emoji: "🍈",
+    age: "6+ months",
+    prepTime: "3 min",
+    serves: "1 baby",
+    nutrition: ["Vitamin A","Vitamin C","Papain enzyme","Digestion aid"],
+    ingredients: [
+      { qty:"Small piece", item:"Ripe papaya (orange-yellow flesh, soft)" }
+    ],
+    steps: [
+      "Select papaya that is fully ripe — flesh should be deep orange-yellow and soft.",
+      "Cut into a small piece. Remove skin and all black seeds thoroughly.",
+      "Place flesh in a clean bowl.",
+      "Mash with the back of a fork until completely smooth.",
+      "No cooking needed. Serve at room temperature.",
+      "Can mix with a teaspoon of rice porridge to adjust texture."
+    ],
+    tip: "Papaya contains papain enzyme which greatly aids digestion. Excellent for preventing and relieving constipation. Give 2–3 times per week — not daily.",
+    storage: "Serve fresh immediately. Refrigerate cut papaya (covered) max 24 hrs; mash fresh each time.",
+    safety: "Use only fully ripe papaya. Raw/unripe papaya is NOT suitable for babies. Remove all seeds — they are spicy."
+  },
+  {
+    keys: ["carrot","gajar"],
+    name: "Carrot Puree",
+    emoji: "🥕",
+    age: "6+ months",
+    prepTime: "18 min",
+    serves: "1 baby",
+    nutrition: ["Beta-carotene","Vitamin A","Vitamin K","Fibre"],
+    ingredients: [
+      { qty:"1 small", item:"Fresh carrot" },
+      { qty:"3–4 tbsp", item:"Water (for blending)" }
+    ],
+    steps: [
+      "Wash carrot thoroughly. Peel and chop into thin coins.",
+      "Place in steamer or add to small pot with ½ cup water.",
+      "Steam or boil on medium flame for 15 min until very soft (easily pierced with fork).",
+      "Transfer to blender with 3 tbsp cooking water.",
+      "Blend 2–3 min until completely smooth and creamy.",
+      "Strain through fine sieve. Cool before serving."
+    ],
+    tip: "Rich in beta-carotene which converts to Vitamin A — great for baby's eyesight and immunity. Introduce carrots before adding them raw to diet (babies can have from 6 months cooked only).",
+    storage: "Refrigerate 48 hrs or freeze up to 2 months.",
+    safety: "Always peel and cook well. Ensure no fibrous strands remain in puree — strain carefully."
+  },
+  {
+    keys: ["sweet potato","shakarkand","ratalu"],
+    name: "Sweet Potato Mash",
+    emoji: "🍠",
+    age: "6+ months",
+    prepTime: "20 min",
+    serves: "1 baby",
+    nutrition: ["Vitamin A","Potassium","Vitamin C","Complex carbs"],
+    ingredients: [
+      { qty:"1 small", item:"Sweet potato (shakarkand)" },
+      { qty:"2–3 tbsp", item:"Breast milk, formula or boiled water (for consistency)" }
+    ],
+    steps: [
+      "Wash and peel sweet potato.",
+      "Chop into small cubes (1 inch pieces).",
+      "Pressure cook with ½ cup water for 2 whistles, or steam for 15–18 min until very soft.",
+      "Transfer to bowl. Mash with a fork until completely smooth.",
+      "Add breast milk or boiled water 1 spoon at a time to reach desired consistency.",
+      "Cool to lukewarm and serve."
+    ],
+    tip: "Naturally sweet — almost all babies love this! Great for weight gain. Excellent first food. Can be mixed with any vegetable puree.",
+    storage: "Refrigerate up to 48 hrs or freeze in ice cubes up to 1 month.",
+    safety: "Ensure fully smooth — no lumps. No salt, no spices. The natural sweetness is perfect as is."
+  },
+  {
+    keys: ["pumpkin","kaddu","bhoplyachi","lal kadu"],
+    name: "Pumpkin Puree",
+    emoji: "🎃",
+    age: "6+ months",
+    prepTime: "18 min",
+    serves: "1 baby",
+    nutrition: ["Beta-carotene","Vitamin A","Vitamin C","Zinc"],
+    ingredients: [
+      { qty:"100g", item:"Red pumpkin (lal bhoplyachi / kaddu) — skin and seeds removed" },
+      { qty:"3 tbsp", item:"Water" }
+    ],
+    steps: [
+      "Peel pumpkin carefully and remove all seeds and fibrous strands.",
+      "Chop into 1-inch cubes.",
+      "Steam for 12–15 min or boil in ½ cup water until completely soft.",
+      "Blend smooth with 2–3 tbsp cooking water.",
+      "Strain if needed for extra smoothness. Cool before serving."
+    ],
+    tip: "Red pumpkin (not the pale variety) is ideal — richer in beta-carotene. Mixes well with carrot, sweet potato or any dal.",
+    storage: "Refrigerate 48 hrs or freeze up to 2 months.",
+    safety: "No salt. If mixing with other vegetables, introduce each vegetable separately first (3-day rule)."
+  },
+  {
+    keys: ["moong dal khichdi","moong dal khi","thin moong"],
+    name: "Thin Moong Dal Khichdi",
+    emoji: "🍲",
+    age: "7+ months",
+    prepTime: "25 min",
+    serves: "1 baby",
+    nutrition: ["Protein","Iron","Carbohydrates","Folate"],
+    ingredients: [
+      { qty:"1 tbsp", item:"Yellow moong dal (dhuli moong)" },
+      { qty:"2 tbsp", item:"Rice (any soft variety)" },
+      { qty:"1½ cups", item:"Water" },
+      { qty:"1 drop", item:"Pure desi ghee (optional)" }
+    ],
+    steps: [
+      "Wash moong dal and rice separately in cold water 2–3 times.",
+      "Soak together in water for 20–30 min (helps easier digestion).",
+      "Drain and pressure cook with 1½ cups fresh water for 4–5 whistles on medium flame.",
+      "Allow pressure to release. Open — it should be very soft and mushy.",
+      "Blend with a hand blender or mash until completely smooth.",
+      "Add boiled water to make it thinner (soupy consistency for younger babies).",
+      "Stir in a drop of ghee. Cool to lukewarm. No salt."
+    ],
+    tip: "This is the gold-standard first protein food for Indian babies. Start with very thin (soupy) consistency and gradually thicken as baby grows. The ghee improves absorption of fat-soluble vitamins.",
+    storage: "Refrigerate up to 24 hrs (thickens on cooling — add water when reheating). Do not freeze.",
+    safety: "No salt, no turmeric, no spices of any kind for babies under 10 months. Introduce at 7 months after single-ingredient foods are tolerated."
+  },
+  {
+    keys: ["moong dal water","dal water"],
+    name: "Moong Dal Water + Rice Mash",
+    emoji: "🥛",
+    age: "6+ months",
+    prepTime: "20 min",
+    serves: "1 baby",
+    nutrition: ["Protein (gentle)","Iron","Carbohydrates","Easily absorbed"],
+    ingredients: [
+      { qty:"2 tbsp", item:"Yellow moong dal" },
+      { qty:"1 tbsp", item:"Rice" },
+      { qty:"1½ cups", item:"Water" }
+    ],
+    steps: [
+      "Boil moong dal in 1 cup water on medium flame for 15–18 min until completely soft.",
+      "Strain — save the clear dal water (this is packed with protein and minerals).",
+      "Cook rice separately with ½ cup water, mash until smooth.",
+      "Mix dal water into the rice mash and stir well.",
+      "Thin to a soupy consistency with extra boiled water.",
+      "Cool and serve. No salt."
+    ],
+    tip: "Dal water is the gentlest way to introduce protein — ideal for 6–7 months. The protein is in the liquid and very easy to absorb. Great when baby has a mild tummy upset.",
+    storage: "Best fresh. Can refrigerate up to 8 hours.",
+    safety: "No salt. Introduce moong dal water before giving whole dal khichdi."
+  },
+  {
+    keys: ["toor dal","rice + toor","toor"],
+    name: "Rice + Toor Dal Mash",
+    emoji: "🥣",
+    age: "8+ months",
+    prepTime: "25 min",
+    serves: "1 baby",
+    nutrition: ["Protein","Iron","Fibre","B-vitamins"],
+    ingredients: [
+      { qty:"1 tbsp", item:"Toor dal (arhar / split pigeon peas)" },
+      { qty:"2 tbsp", item:"Rice" },
+      { qty:"1½ cups", item:"Water" },
+      { qty:"1 drop", item:"Pure ghee" }
+    ],
+    steps: [
+      "Wash and soak toor dal + rice for 30 min.",
+      "Pressure cook together with 1½ cups water — 5 whistles on medium flame.",
+      "Allow pressure to release naturally.",
+      "Blend or mash until very smooth. No lumps.",
+      "Add boiled water to thin. Add ghee drop and mix.",
+      "Cool and serve. No salt."
+    ],
+    tip: "Toor dal is slightly heavier than moong dal. Introduce only after moong dal is well tolerated for 4+ weeks. Watch for any gas or discomfort.",
+    storage: "Refrigerate up to 24 hrs. Add water while reheating.",
+    safety: "Only for 8+ months. Introduce toor dal separately first before combining with rice."
+  },
+  {
+    keys: ["carrot + potato","carrot and potato","carrot potato"],
+    name: "Carrot + Potato Puree",
+    emoji: "🥕🥔",
+    age: "7+ months",
+    prepTime: "20 min",
+    serves: "1 baby",
+    nutrition: ["Vitamin A","Potassium","Carbohydrates","Vitamin C"],
+    ingredients: [
+      { qty:"1 small", item:"Carrot" },
+      { qty:"½ small", item:"Potato" },
+      { qty:"3–4 tbsp", item:"Water" }
+    ],
+    steps: [
+      "Peel and wash both carrot and potato. Chop into small equal-sized pieces.",
+      "Steam together in a steamer for 15 min until both are very soft.",
+      "Transfer to blender with 3 tbsp water.",
+      "Blend until completely smooth.",
+      "Strain through fine sieve for velvety texture.",
+      "Cool to lukewarm. Serve."
+    ],
+    tip: "Ensure both vegetables have been introduced individually first (3-day rule before combining). Potato adds creaminess and energy; carrot adds sweetness and vitamin A.",
+    storage: "Refrigerate 48 hrs or freeze up to 1 month.",
+    safety: "No salt. Only combine after each ingredient has been tested separately."
+  },
+  {
+    keys: ["pumpkin + potato","pumpkin and potato","pumpkin potato"],
+    name: "Pumpkin + Potato Mash",
+    emoji: "🎃🥔",
+    age: "7+ months",
+    prepTime: "20 min",
+    serves: "1 baby",
+    nutrition: ["Beta-carotene","Potassium","Vitamin C","Energy"],
+    ingredients: [
+      { qty:"80g", item:"Red pumpkin (kaddu), peeled and seeded" },
+      { qty:"½ small", item:"Potato" },
+      { qty:"3 tbsp", item:"Water" }
+    ],
+    steps: [
+      "Peel, deseed pumpkin. Peel potato. Chop both into 1-inch cubes.",
+      "Steam together for 15–18 min until both are very soft.",
+      "Mash with fork or blend until smooth.",
+      "Add water to reach desired consistency.",
+      "Cool before serving."
+    ],
+    tip: "Naturally very sweet — great for babies who resist vegetables. Good for healthy weight gain. Can add a drop of ghee for extra energy.",
+    storage: "Refrigerate 48 hrs or freeze up to 1 month.",
+    safety: "No salt. Introduce pumpkin and potato separately before combining."
+  },
+  {
+    keys: ["rice + moong","rice moong"],
+    name: "Rice + Moong Dal Mash",
+    emoji: "🍲",
+    age: "7+ months",
+    prepTime: "25 min",
+    serves: "1 baby",
+    nutrition: ["Complete protein","Iron","Carbohydrates","Easy to digest"],
+    ingredients: [
+      { qty:"2 tbsp", item:"Rice" },
+      { qty:"1 tbsp", item:"Yellow moong dal" },
+      { qty:"1½ cups", item:"Water" },
+      { qty:"1 drop", item:"Ghee" }
+    ],
+    steps: [
+      "Wash rice and moong dal together. Soak for 20 min.",
+      "Pressure cook with 1½ cups water — 4–5 whistles.",
+      "Let pressure release. Mash or blend smooth.",
+      "Add boiled water to adjust consistency. Add ghee.",
+      "Cool and serve without salt."
+    ],
+    tip: "Rice + moong dal provides a near-complete amino acid profile — an ideal combination for growing babies. This is the simplest form of the traditional khichdi.",
+    storage: "Refrigerate 24 hrs. Freeze up to 1 month.",
+    safety: "No salt, no spices. If baby shows bloating, reduce dal proportion and try again after a week."
+  }
+];
+
+/* ── keyword matching ── */
+function findRecipe(text) {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+  // sort by key length desc to match more specific keys first
+  const sorted = [...BABY_RECIPES].sort((a,b) => {
+    const aMax = Math.max(...a.keys.map(k=>k.length));
+    const bMax = Math.max(...b.keys.map(k=>k.length));
+    return bMax - aMax;
+  });
+  for (const r of sorted) {
+    if (r.keys.some(k => lower.includes(k))) return r;
+  }
+  return null;
+}
+
+/* ── open recipe popup ── */
+function showRecipe(text) {
+  const recipe = findRecipe(text);
+  if (!recipe) return;
+
+  const ingHTML = recipe.ingredients.map(i => `
+    <li>
+      <span class="ing-dot"></span>
+      <span class="ing-qty">${i.qty}</span>
+      <span>${i.item}</span>
+    </li>`).join("");
+
+  const stepsHTML = recipe.steps.map((s, i) => `
+    <li class="step-item">
+      <span class="step-num">${i+1}</span>
+      <span class="step-text">${s}</span>
+    </li>`).join("");
+
+  document.getElementById("recipeModal").innerHTML = `
+    <div class="recipe-hdr">
+      <div class="recipe-hdr-top">
+        <div class="recipe-title-wrap">
+          <div class="recipe-emoji-row">${recipe.emoji}</div>
+          <div class="recipe-food-name">${recipe.name}</div>
+          <div class="recipe-badges">
+            <span class="recipe-badge rb-age">&#128118; ${recipe.age}</span>
+            <span class="recipe-badge rb-time">&#9201; ${recipe.prepTime}</span>
+            <span class="recipe-badge rb-serves">&#127858; ${recipe.serves}</span>
+          </div>
+        </div>
+        <button class="recipe-close" onclick="closeRecipe()">&#10005;</button>
+      </div>
+    </div>
+
+    <div class="recipe-nutrition">
+      ${recipe.nutrition.map(n => `<span class="nut-tag">&#10024; ${n}</span>`).join("")}
+    </div>
+
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients</div>
+      <ul class="ingredient-list">${ingHTML}</ul>
+
+      <div class="recipe-section-title">Preparation</div>
+      <ul class="step-list">${stepsHTML}</ul>
+
+      <div class="recipe-tip-box tip">
+        <span class="tip-icon">&#128161;</span>
+        <span><strong>Tip:</strong> ${recipe.tip}</span>
+      </div>
+      <div class="recipe-tip-box storage">
+        <span class="tip-icon">&#10052;</span>
+        <span><strong>Storage:</strong> ${recipe.storage}</span>
+      </div>
+      <div class="recipe-tip-box safety">
+        <span class="tip-icon">&#9888;&#65039;</span>
+        <span><strong>Safety:</strong> ${recipe.safety}</span>
+      </div>
+    </div>`;
+
+  document.getElementById("recipeOverlay").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeRecipe() {
+  document.getElementById("recipeOverlay").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+/* ─────────────────────────────────────────
+   BOOT — call init after all consts ready
+───────────────────────────────────────── */
+_appInit();
+
+/* ─────────────────────────────────────────
+   PWA — SERVICE WORKER + INSTALL PROMPT
+───────────────────────────────────────── */
+let _deferredPrompt = null;
+
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  // show banner after 3s if not already installed
+  if (!localStorage.getItem("pwaInstalled")) {
+    setTimeout(() => {
+      document.getElementById("installBanner").classList.add("show");
+    }, 3000);
+  }
+});
+
+document.getElementById("installBtn").addEventListener("click", async () => {
+  if (!_deferredPrompt) return;
+  _deferredPrompt.prompt();
+  const { outcome } = await _deferredPrompt.userChoice;
+  if (outcome === "accepted") {
+    localStorage.setItem("pwaInstalled", "1");
+    dismissInstall();
+  }
+  _deferredPrompt = null;
+});
+
+window.addEventListener("appinstalled", () => {
+  localStorage.setItem("pwaInstalled", "1");
+  dismissInstall();
+});
+
+function dismissInstall() {
+  document.getElementById("installBanner").classList.remove("show");
+}
+</script>
+</body>
+</html>
