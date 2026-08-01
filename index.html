@@ -890,6 +890,8 @@
     .hamburger { display: flex; }
     .hdr-badges { display: none; }
 
+    header { justify-content: center; padding-left: 56px; padding-right: 16px; }
+
     .layout { overflow: hidden; }
 
     .content {
@@ -899,6 +901,10 @@
     .baby-grid  { grid-template-columns: 1fr 1fr; }
     .baby-grid::before { display: none; }
 
+    /* make edit buttons always visible on touch devices */
+    .meal-card .edit-btn,
+    .baby-card .edit-btn { opacity: .6; }
+
     .wheel-hint { display: none; }
     .swipe-hint { display: block; }
     .mobile-day-pill { display: flex; }
@@ -907,9 +913,47 @@
     .day-nav { margin-bottom: 12px; }
   }
 
-  @media (max-width: 400px) {
+  @media (max-width: 480px) {
+    header { height: 50px; padding-left: 50px; padding-right: 10px; }
+    header h1 { font-size: 1rem; }
+    header h1 span { font-size: .75rem; }
+    .hdr-logo { width: 32px; height: 32px; font-size: 17px; }
+    .hamburger { width: 34px; height: 34px; left: 10px; }
+    .hamburger span { width: 16px; }
+
+    .content { padding: 10px 10px 70px; }
+    .day-heading { gap: 8px; margin-bottom: 14px; }
+    .day-heading h2 { font-size: 1.05rem; }
+    .today-chip { padding: 3px 10px; font-size: .65rem; }
+
+    .nav-btn { width: 32px; height: 32px; font-size: .9rem; }
+    .nav-label { font-size: .65rem; }
+
+    .meal-card { padding: 14px 13px 12px; border-radius: 13px; }
+    .meal-emoji { font-size: 1.3rem; margin-bottom: 5px; }
+    .meal-type { font-size: .55rem; }
+    .meal-text { font-size: .82rem; }
+    .meal-tag { font-size: .52rem; padding: 1px 6px; }
+
+    .baby-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .baby-card { padding: 12px 10px 10px; }
+
+    .section-label { font-size: .62rem; margin-bottom: 10px; }
+
+    .mobile-day-pill { padding: 8px 16px; font-size: .72rem; bottom: 12px; }
+
+    .sidebar { width: 260px; }
+    .month-tab { font-size: .63rem; padding: 4px 10px; }
+    .add-month-btn { font-size: .63rem; padding: 5px; }
+  }
+
+  @media (max-width: 360px) {
+    header h1 span { display: none; }
     header h1 { font-size: .95rem; }
-    .hdr-logo { width: 30px; height: 30px; font-size: 16px; }
+    .hdr-logo { width: 28px; height: 28px; font-size: 15px; }
+
+    .baby-grid { grid-template-columns: 1fr; }
+    .day-heading h2 { font-size: .95rem; }
   }
 
   /* ── ROTLA PICKER ── */
