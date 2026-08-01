@@ -1,4 +1,4 @@
-const CACHE_NAME = "tandel-meal-planner-v2";
+const CACHE_NAME = "tandel-meal-planner-v3";
 const ASSETS = [
   "./index.html",
   "./manifest.json",

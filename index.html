@@ -1389,7 +1389,7 @@
 
 <script>
 /* ─────────────────────────────────────────
-   MEAL DATA  ─ July 2026 pre-loaded
+   MEAL DATA  ─ July & August 2026 pre-loaded
 ───────────────────────────────────────── */
 const BUILT_IN = {
   "2026-07": {
@@ -1427,6 +1427,43 @@ const BUILT_IN = {
       29: { dn:"Wednesday", f:{ b:"Methi Thepla + Dahi + Chai", l:"Valor Papdi nu Shaak + Roti + Dal + Rice + Raita + Pickle", d:"Kadhi + Rice + Papad" }, baby:{ b1:"Suji porridge", b2:"Papaya mash", l:"Thin moong dal khichdi", d:"Pumpkin puree" }},
       30: { dn:"Thursday",  f:{ b:"Rava Upma + Coconut Chutney + Chai", l:"Ringan nu Shaak + Dal Dhokli + Roti + Buttermilk + Papad", d:"Daliya Khichdi + Dahi + Papad" }, baby:{ b1:"Rice porridge with ghee", b2:"Banana mash", l:"Rice + moong dal mash", d:"Sweet potato mash" }},
       31: { dn:"Friday",    f:{ b:"Soft Dhokla + Green Chutney + Chai", l:"Full Gujarati Thali: Dal + Batata Shaak + Roti + Rice + Kadhi + Shrikhand + Papad + Pickle  [Month End Special]", d:"Rotla + Ghee + Jaggery + Buttermilk" }, baby:{ b1:"Suji porridge", b2:"Apple puree", l:"Moong dal khichdi", d:"Carrot puree" }}
+    }
+  },
+  "2026-08": {
+    monthName: "August 2026",
+    totalDays: 31,
+    days: {
+      1:  { dn:"Saturday",  f:{ b:"Sabudana Khichdi + Peanuts + Chai", l:"Valor Papdi nu Shaak + Puri + Dal + Rice + Buttermilk", d:"Kadhi + Rice + Papad" }, baby:{ b1:"Suji porridge with ghee", b2:"Mashed ripe banana", l:"Thin moong dal khichdi (no salt)", d:"Apple puree (warm)" }},
+      2:  { dn:"Sunday",    f:{ b:"Fafda + Jalebi + Papaya Slices + Chai  [Sunday Special]", l:"Undhiyu + Puri + Shrikhand + Salad + Buttermilk", d:"Rotla + Ghee + Jaggery + Buttermilk" }, baby:{ b1:"Ragi porridge with ghee", b2:"Boiled pear puree", l:"Rice + toor dal mash", d:"Boiled sweet potato mash" }},
+      3:  { dn:"Monday",    f:{ b:"Batata Poha + Chai", l:"Gujarati Thali: Toor Dal + Ringan Batata Shaak + Roti + Rice + Kadhi + Papad + Pickle", d:"Mug ni Dal + 2 Roti + Kachumber" }, baby:{ b1:"Rice porridge (pej) with ghee", b2:"Apple puree", l:"Moong dal khichdi (very thin)", d:"Carrot puree" }},
+      4:  { dn:"Tuesday",   f:{ b:"Handvo + Green Chutney + Chai", l:"Sev Tameta nu Shaak + Khichdi + Kadhi + Roti + Buttermilk", d:"Daliya Khichdi + Dahi + Papad" }, baby:{ b1:"Suji porridge", b2:"Papaya mash", l:"Rice + moong dal mash", d:"Pumpkin puree" }},
+      5:  { dn:"Wednesday", f:{ b:"Methi Thepla + Dahi + Chundo + Chai", l:"Dudhi Chana nu Shaak + Roti + Moong Dal + Rice + Raita", d:"Moong Dal Khichdi + Ghee + Pickle" }, baby:{ b1:"Ragi porridge", b2:"Mashed banana", l:"Carrot puree (boiled smooth)", d:"Pear puree" }},
+      6:  { dn:"Thursday",  f:{ b:"Besan Chilla + Dahi + Chai", l:"Panchkutiyu Shaak + Puri + Moong Dal + Rice + Raita + Pickle", d:"Khichdi + Ghee + Dahi + Papad" }, baby:{ b1:"Rice porridge with ghee", b2:"Sweet potato mash", l:"Thin moong dal khichdi", d:"Apple puree" }},
+      7:  { dn:"Friday",    f:{ b:"Soft Dhokla + Green Chutney + Chai", l:"Methi Muthia ni Kadhi + Rice + Roti + Salad + Papad", d:"Moong Dal Khichdi + Ghee + Kachumber" }, baby:{ b1:"Suji porridge with ghee", b2:"Mashed ripe banana", l:"Rice + toor dal mash", d:"Carrot puree" }},
+      8:  { dn:"Saturday",  f:{ b:"Rava Upma + Coconut Chutney + Chai", l:"Kanda Batata nu Shaak + Puri + Dal + Khichdi + Buttermilk", d:"Kadhi + Rice + Papad" }, baby:{ b1:"Ragi porridge", b2:"Papaya mash", l:"Moong dal khichdi", d:"Banana mash" }},
+      9:  { dn:"Sunday",    f:{ b:"Idada (steamed white dhokla) + Chutney + Chai  [Sunday Special]", l:"Sev Usal + Puri + Dal Khichdi + Kadhi + Shrikhand + Salad", d:"Rotla + Ghee + Jaggery + Dahi" }, baby:{ b1:"Suji porridge with ghee", b2:"Apple puree", l:"Rice + moong dal mash", d:"Sweet potato mash" }},
+      10: { dn:"Monday",    f:{ b:"Moong Dal Chilla + Dahi + Chai", l:"Tindora nu Shaak + Dal Tadka + Roti + Rice + Papad + Pickle", d:"Doodh Daliya (milk porridge)" }, baby:{ b1:"Rice porridge (pej)", b2:"Pear puree", l:"Moong dal khichdi (very thin)", d:"Carrot puree" }},
+      11: { dn:"Tuesday",   f:{ b:"Muthia (steamed) + Chutney + Chai", l:"Ringan nu Shaak + Dal Dhokli + Rice + Buttermilk + Papad", d:"Mug ni Dal + 2 Roti + Salad" }, baby:{ b1:"Ragi porridge", b2:"Banana mash", l:"Rice + dal mash", d:"Pumpkin puree" }},
+      12: { dn:"Wednesday", f:{ b:"Corn Poha + Chai", l:"Bhinda (Okra) nu Shaak + Gujarati Kadhi + Roti + Rice + Papad", d:"Daliya Khichdi + Buttermilk + Papad" }, baby:{ b1:"Suji porridge", b2:"Apple puree", l:"Thin moong dal khichdi", d:"Mashed banana" }},
+      13: { dn:"Thursday",  f:{ b:"Khakhra + Dahi + Pickle + Chai", l:"Gujarati Thali: Dal + Batata Shaak + Roti + Rice + Kadhi + Raita + Papad + Pickle", d:"Moong Dal Khichdi + Ghee + Dahi" }, baby:{ b1:"Rice porridge with ghee", b2:"Boiled sweet potato mash", l:"Carrot + potato puree", d:"Pear puree" }},
+      14: { dn:"Friday",    f:{ b:"Patra + Green Chutney + Chai", l:"Dudhi Chana nu Shaak + Roti + Moong Dal + Rice + Buttermilk", d:"Kadhi + Rice + Papad + Pickle" }, baby:{ b1:"Suji porridge", b2:"Mashed banana", l:"Rice + dal mash", d:"Carrot puree" }},
+      15: { dn:"Saturday",  f:{ b:"Sabudana Khichdi + Chai", l:"Surti Valor Papdi nu Shaak + Puri + Dal + Rice + Buttermilk", d:"Khichdi + Ghee + Papad + Pickle" }, baby:{ b1:"Ragi porridge", b2:"Papaya mash", l:"Moong dal khichdi", d:"Apple puree" }},
+      16: { dn:"Sunday",    f:{ b:"Sukhdi + Thepla + Chai  [Sunday Special]", l:"Vaghareli Khichdi + Kadhi + Papad + Mango Pickle + Salad + Shrikhand", d:"Rotla + Ghee + Jaggery + Buttermilk" }, baby:{ b1:"Suji porridge with ghee", b2:"Banana mash", l:"Rice + moong dal mash", d:"Sweet potato mash" }},
+      17: { dn:"Monday",    f:{ b:"Batata Poha + Chai", l:"Gujarati Thali: Toor Dal + Dudhi Batata Shaak + Roti + Rice + Kadhi + Papad", d:"Mug ni Dal + 2 Roti + Kachumber" }, baby:{ b1:"Rice porridge (pej)", b2:"Apple puree", l:"Rice + moong dal mash", d:"Banana mash" }},
+      18: { dn:"Tuesday",   f:{ b:"Handvo + Chutney + Chai", l:"Sev Tameta nu Shaak + Roti + Dal + Rice + Raita + Pickle", d:"Daliya Khichdi + Dahi + Papad" }, baby:{ b1:"Suji porridge", b2:"Papaya mash", l:"Thin moong dal khichdi", d:"Pumpkin puree" }},
+      19: { dn:"Wednesday", f:{ b:"Methi Thepla + Dahi + Chai", l:"Tindora Batata nu Shaak + Kadhi + Roti + Rice + Papad", d:"Moong Dal Khichdi + Ghee + Kachumber" }, baby:{ b1:"Ragi porridge", b2:"Banana mash", l:"Rice + toor dal mash", d:"Sweet potato mash" }},
+      20: { dn:"Thursday",  f:{ b:"Rava Upma + Coconut Chutney + Chai", l:"Panchkutiyu Shaak + Puri + Dal + Rice + Raita + Pickle", d:"Kadhi + Rice + Papad" }, baby:{ b1:"Rice porridge with ghee", b2:"Apple puree", l:"Moong dal khichdi", d:"Pear puree" }},
+      21: { dn:"Friday",    f:{ b:"Soft Dhokla + Green Chutney + Chai", l:"Dal Dhokli + Salad + Chaas + Papad", d:"Doodh Daliya + Papad" }, baby:{ b1:"Suji porridge", b2:"Mashed banana", l:"Rice + dal mash", d:"Carrot puree" }},
+      22: { dn:"Saturday",  f:{ b:"Besan Chilla + Dahi + Chai", l:"Kanda Batata nu Shaak + Puri + Moong Dal + Rice + Buttermilk + Papad", d:"Khichdi + Ghee + Dahi + Papad" }, baby:{ b1:"Ragi porridge", b2:"Papaya mash", l:"Thin moong dal khichdi", d:"Apple puree" }},
+      23: { dn:"Sunday",    f:{ b:"Fafda + Jalebi + Chai  [Sunday Special]", l:"Undhiyu + Puri + Shrikhand + Kadhi + Salad + Buttermilk", d:"Rotla + Ghee + Dahi + Jaggery" }, baby:{ b1:"Suji porridge with ghee", b2:"Banana mash", l:"Rice + moong dal mash", d:"Boiled sweet potato mash" }},
+      24: { dn:"Monday",    f:{ b:"Moong Dal Chilla + Dahi + Chai", l:"Bhinda nu Shaak + Gujarati Toor Dal + Roti + Rice + Buttermilk + Papad", d:"Mug ni Dal + Roti + Kachumber" }, baby:{ b1:"Rice porridge (pej)", b2:"Apple puree", l:"Moong dal khichdi", d:"Carrot puree" }},
+      25: { dn:"Tuesday",   f:{ b:"Muthia (steamed) + Chutney + Chai", l:"Ringan nu Shaak + Roti + Dal + Rice + Raita + Pickle", d:"Daliya Khichdi + Buttermilk + Papad" }, baby:{ b1:"Ragi porridge", b2:"Pear puree", l:"Rice + dal mash", d:"Banana mash" }},
+      26: { dn:"Wednesday", f:{ b:"Corn Poha + Chai", l:"Gujarati Thali: Dal + Ringan Batata Shaak + Roti + Rice + Kadhi + Papad + Chundo", d:"Moong Dal Khichdi + Ghee + Dahi" }, baby:{ b1:"Suji porridge", b2:"Apple puree", l:"Thin moong dal khichdi", d:"Pumpkin puree" }},
+      27: { dn:"Thursday",  f:{ b:"Khakhra + Dahi + Pickle + Chai", l:"Methi Muthia ni Kadhi + Rice + Roti + Salad + Papad", d:"Kadhi + Rice + Papad + Pickle" }, baby:{ b1:"Rice porridge with ghee", b2:"Banana mash", l:"Rice + moong dal mash", d:"Sweet potato mash" }},
+      28: { dn:"Friday",    f:{ b:"Patra + Chutney + Chai", l:"Valor Papdi nu Shaak + Roti + Dal + Rice + Buttermilk + Papad", d:"Rotla + Ghee + Jaggery + Dahi" }, baby:{ b1:"Suji porridge", b2:"Papaya mash", l:"Moong dal khichdi", d:"Carrot puree" }},
+      29: { dn:"Saturday",  f:{ b:"Sabudana Khichdi + Peanuts + Chai", l:"Vaghareli Khichdi + Kadhi + Papad + Pickle + Salad", d:"Khichdi + Ghee + Dahi + Papad" }, baby:{ b1:"Ragi porridge with ghee", b2:"Mashed pear", l:"Rice + toor dal mash", d:"Apple puree" }},
+      30: { dn:"Sunday",    f:{ b:"Idada + Chutney + Chai  [Sunday Special]", l:"Sev Tameta nu Shaak + Puri + Dal + Khichdi + Kadhi + Raita + Papad + Shrikhand", d:"Rotla + Ghee + Jaggery + Buttermilk" }, baby:{ b1:"Suji porridge with ghee", b2:"Banana mash", l:"Rice + moong dal mash", d:"Sweet potato mash" }},
+      31: { dn:"Monday",    f:{ b:"Batata Poha + Chai", l:"Full Gujarati Thali: Dal + Dudhi Batata Shaak + Roti + Rice + Kadhi + Shrikhand + Papad + Pickle  [Month End Special]", d:"Moong Dal Khichdi + Ghee + Kachumber" }, baby:{ b1:"Rice porridge (pej)", b2:"Apple puree", l:"Moong dal khichdi", d:"Carrot puree" }}
     }
   }
 };
